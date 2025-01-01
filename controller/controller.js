@@ -1,9 +1,9 @@
 import { loginApi } from "./api.js";
-import { setLocalStorage, getLocalStorage } from "./localStorage.js";
+import { setLocalStorage } from "./localStorage.js";
 import {
   getAllProductsApi,
   getProductByIdApi,
-  createProductApi,
+  searchProductsApi,
 } from "./api.js";
 
 async function loginController({ email, password }) {
@@ -12,7 +12,7 @@ async function loginController({ email, password }) {
     setLocalStorage("accessToken", data.accessToken);
     setLocalStorage("refreshToken", data.refreshToken);
     if (data.accessToken) {
-      window.location.href = "/products.html"; //redirect to products page
+      window.location.href = "/products.html?brands=all"; //redirect to products page
     }
     return data;
   } catch (error) {
@@ -21,10 +21,9 @@ async function loginController({ email, password }) {
   }
 }
 
-async function getAllProductsController() {
+async function getAllProductsController(brand = "") {
   try {
-    const data = await getAllProductsApi();
-    console.log("data", data);
+    const data = await getAllProductsApi(brand);
     return data;
   } catch (error) {
     console.error("Get all products controller failed", error);
@@ -35,26 +34,26 @@ async function getAllProductsController() {
 async function getProductByIdController(id) {
   try {
     const data = await getProductByIdApi(id);
-    console.log("data", data);
+    // console.log("detail product controller by id:", data);
     return data;
   } catch (error) {
     console.error("Get product by id controller failed", error);
   }
 }
 
-async function createProductController({ productObject }) {
+async function searchProductsController(searchValue) {
   try {
-    const data = await createProductApi({ productObject });
-    console.log("data", data);
+    const data = await searchProductsApi(searchValue);
     return data;
   } catch (error) {
-    console.error("Create product controller failed", error);
+    console.error("Search products controller failed", error);
+    return error;
   }
 }
 
 export {
   loginController,
   getAllProductsController,
-  createProductController,
   getProductByIdController,
+  searchProductsController,
 };

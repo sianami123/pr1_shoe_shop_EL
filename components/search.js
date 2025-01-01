@@ -21,6 +21,14 @@ export function Search() {
                   type: "search",
                   placeholder: "Search",
                 },
+                eventListener: [
+                  {
+                    event: "focus",
+                    callback: (e) => {
+                      window.location.href = "/search.html";
+                    },
+                  },
+                ],
               }),
               // Search Icon
               El({

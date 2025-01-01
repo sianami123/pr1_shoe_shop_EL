@@ -25,14 +25,22 @@ async function loginApi({ email, password }) {
   }
 }
 
-async function getAllProductsApi() {
+async function getAllProductsApi(brand) {
+  let url = GET_ALL_PRODUCTS_URL;
+  if (brand !== "" && brand !== null) {
+    url = `${GET_ALL_PRODUCTS_URL}?filterKey=brand&filterValue=${brand}`;
+  }
+  console.log("url:", url);
   try {
-    const response = await fetch(GET_ALL_PRODUCTS_URL, {
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         api_key,
       },
     });
+    const data = await response.json();
+    console.log("data from getAllProductsApi", data);
+    return data;
   } catch (error) {
     console.error("Get all products API failed", error);
   }
@@ -53,23 +61,23 @@ async function getProductByIdApi(id) {
   }
 }
 
-export { loginApi, getAllProductsApi, getProductByIdApi, createProductApi };
+async function searchProductsApi(searchValue) {
+  let url = GET_ALL_PRODUCTS_URL;
+  if (searchValue !== "" && searchValue !== null) {
+    url = `${GET_ALL_PRODUCTS_URL}?searchKey=name&searchValue=${searchValue}`;
+  }
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Search products API failed", error);
+  }
+}
 
-// const CREATE_PRODUCT_URL = `${BASE_URL}/api/records/products`;
-
-// async function createProductApi({ productObject }) {
-//   try {
-//     const response = await fetch(CREATE_PRODUCT_URL, {
-//       method: "POST",
-//       body: JSON.stringify(productObject),
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//         api_key,
-//       },
-//     });
-//     const data = await response.json();
-//     return data;
-//   } catch (error) {
-//     console.error("Create product API failed", error);
-//   }
-// }
+export { loginApi, getAllProductsApi, getProductByIdApi, searchProductsApi };

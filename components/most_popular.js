@@ -14,7 +14,7 @@ export function MostPopular() {
           // Header
           El({
             element: "div",
-            className: "flex justify-between items-center mb-4",
+            className: "flex justify-between items-center ",
             children: [
               El({
                 element: "h2",
@@ -29,10 +29,6 @@ export function MostPopular() {
               }),
             ],
           }),
-          // Filter Pills
-          FilterPills(),
-          // Product Grid
-          ProductGrid(),
         ],
       }),
     ],
