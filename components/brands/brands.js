@@ -11,30 +11,27 @@ const brandItems = [
   },
   {
     name: "REEBOK",
-    image:
-      "https://assets.reebok.com/images/w_600,f_auto,q_auto/7ed0855435194229a525aae700d27efb_9366/Reebok_Logo.jpg",
+    image: "./components/brands/assets/reebok.svg",
   },
   {
     name: "PUMA",
-    image: "https://logos-world.net/wp-content/uploads/2020/04/Puma-Logo.png",
+    image: "./components/brands/assets/Puma.svg",
   },
   {
     name: "ASICS",
-    image: "https://logos-world.net/wp-content/uploads/2020/04/Asics-Logo.png",
+    image: "./components/brands/assets/Asics.svg",
   },
   {
     name: "NEW BALANCE",
-    image:
-      "https://logos-world.net/wp-content/uploads/2020/09/New-Balance-Logo.png",
+    image: "./components/brands/assets/newBalans.svg",
   },
   {
     name: "CONVERSE",
-    image:
-      "https://logos-world.net/wp-content/uploads/2020/04/Converse-Logo.png",
+    image: "./components/brands/assets/Converse.svg",
   },
   {
     name: "More",
-    image: "./pages/products/assets/nike.png",
+    image: "./components/brands/assets/more.svg",
   },
 ];
 
@@ -47,7 +44,7 @@ function BrandItem({ name, image }) {
         event: "click",
         callback: () => {
           console.log("brand clicked", name);
-          window.location.href = `./brands.html?filterKey=brand&filterValue=${name}`;
+          window.location.href = `./brands.html?brands=${name}`;
         },
       },
     ],

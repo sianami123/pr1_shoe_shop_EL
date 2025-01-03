@@ -3,6 +3,7 @@ import { BackButton } from "../../components/ui/back_button.js";
 import { getProductByIdController } from "../../controller/controller.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { showToast } from "../../components/toast.js";
+import { addToCartController } from "../../controller/controller.js";
 
 const detail = document.getElementById("detail");
 const urlParams = new URLSearchParams(window.location.search);
@@ -12,7 +13,6 @@ const id = urlParams.get("id");
 let detailProduct;
 let quantity = 1;
 
-// Show loading before fetching data
 const loadingElement = showLoading();
 
 try {
@@ -50,7 +50,7 @@ function DetailPage() {
   return El({
     element: "div",
     children: [
-      BackButton({ text: "Products", backURL: "/products.html" }),
+      BackButton({ text: "Products", backURL: "/home.html" }),
       ProductImageSlider(),
       El({
         element: "div",
@@ -156,29 +156,8 @@ function ProductInfo() {
           }),
         ],
       }),
-      // Inventory
-      El({
-        element: "div",
-        className: "flex justify-between items-center text-sm",
-        children: [
-          El({
-            element: "div",
-            className: "flex items-center gap-1",
-            children: [
-              El({
-                element: "span",
-                className: "text-yellow-400",
-                innerText: "★",
-              }),
-              El({
-                element: "span",
-                className: "text-gray-600",
-                innerText: "4.3 (5,389 reviews)",
-              }),
-            ],
-          }),
-        ],
-      }),
+      // Inventory///
+      //////////////////////////////////////
     ],
   });
 }
@@ -333,6 +312,19 @@ function TotalAndCart() {
             element: "button",
             className:
               "bg-black text-white px-3 py-2 rounded-full flex items-center gap-2",
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  addToCartController({
+                    ...detailProduct,
+                    quantity,
+                    size,
+                    color,
+                  });
+                },
+              },
+            ],
             children: [
               El({
                 element: "img",

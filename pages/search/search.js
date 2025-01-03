@@ -10,7 +10,7 @@ import {
 const searchDOM = document.getElementById("search");
 
 searchDOM.append(
-  BackButton({ text: "Back", backURL: "/products.html" }),
+  BackButton({ text: "Back", backURL: "/home.html" }),
   SearchInput()
 );
 

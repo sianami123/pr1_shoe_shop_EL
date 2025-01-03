@@ -4,15 +4,19 @@ import {
   getAllProductsApi,
   getProductByIdApi,
   searchProductsApi,
+  addToCartApi,
+  getCartApi,
 } from "./api.js";
 
+// LOGIN CONTROLLER START
 async function loginController({ email, password }) {
   try {
     const data = await loginApi({ email, password });
     setLocalStorage("accessToken", data.accessToken);
     setLocalStorage("refreshToken", data.refreshToken);
+    setLocalStorage("user", email);
     if (data.accessToken) {
-      window.location.href = "/products.html?brands=all"; //redirect to products page
+      window.location.href = "/home.html";
     }
     return data;
   } catch (error) {
@@ -20,13 +24,20 @@ async function loginController({ email, password }) {
     return error;
   }
 }
-
-async function getAllProductsController(brand = "") {
+// LOGIN CONTROLLER END
+// PRODUCT CONTROLLER START
+async function getAllProductsController(brand) {
+  console.log("brand:", brand);
   try {
     const data = await getAllProductsApi(brand);
+    if (data?.message === "Invalid access token") {
+      window.location.href = "/login.html";
+      return null;
+    }
     return data;
   } catch (error) {
     console.error("Get all products controller failed", error);
+    window.location.href = "/login.html";
     return error;
   }
 }
@@ -50,10 +61,35 @@ async function searchProductsController(searchValue) {
     return error;
   }
 }
+// PRODUCT CONTROLLER END
+// CART CONTROLLER START
+async function addToCartController({ quantity, size, color, ...product }) {
+  try {
+    const data = await addToCartApi({ quantity, size, color, ...product });
+    console.log("add to cart controller:", data);
+    return data;
+  } catch (error) {
+    console.error("Add to cart controller failed", error);
+    return error;
+  }
+}
 
+async function getCartController() {
+  try {
+    const data = await getCartApi();
+    return data;
+  } catch (error) {
+    console.error("Get cart controller failed", error);
+    return error;
+  }
+}
+
+// CART CONTROLLER END
 export {
   loginController,
   getAllProductsController,
   getProductByIdController,
   searchProductsController,
+  addToCartController,
+  getCartController,
 };

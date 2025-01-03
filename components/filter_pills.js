@@ -39,9 +39,9 @@ function Pill({ name, active }) {
         callback: () => {
           console.log("pill clicked", name);
           if (name === "All") {
-            window.location.href = `./products.html`;
+            window.location.href = `./home.html`;
           } else {
-            window.location.href = `./products.html?brands=${name}`;
+            window.location.href = `./home.html?brands=${name}`;
           }
         },
       },

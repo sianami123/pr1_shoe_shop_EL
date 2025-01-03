@@ -1,6 +1,7 @@
 import { El } from "../utils/El.js";
 
 export function ProductGrid({ products = [] }) {
+  console.log("products:", products);
   return El({
     element: "div",
     className: "grid grid-cols-2 gap-2 mb-16",

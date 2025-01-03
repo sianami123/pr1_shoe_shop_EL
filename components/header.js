@@ -1,6 +1,6 @@
 import { El } from "../utils/El.js";
 
-export function Header() {
+export function Header({ user }) {
   return El({
     element: "header",
     children: [
@@ -18,7 +18,7 @@ export function Header() {
                 element: "div",
                 className:
                   "w-12 h-12 bg-black rounded-full flex items-center justify-center text-white text-sm",
-                children: ["1:1"],
+                children: [user.slice(0, 3).toUpperCase()],
               }),
               // Greeting Text
               El({
@@ -44,7 +44,7 @@ export function Header() {
                   El({
                     element: "span",
                     className: "font-semibold",
-                    children: ["Saeed Abdilar"],
+                    children: [user],
                   }),
                 ],
               }),

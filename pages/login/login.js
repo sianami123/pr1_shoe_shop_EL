@@ -46,7 +46,7 @@ function Login() {
     element: "div",
     className: "h-screen p-6 overflow-hidden",
     children: [
-      BackButton(),
+      BackButton({ text: "", backURL: "" }),
       El({
         element: "div",
         className: "max-w-md mx-auto h-[calc(100%-4rem)] flex flex-col",
