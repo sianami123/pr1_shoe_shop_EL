@@ -62,7 +62,9 @@ function SearchInput() {
               },
               {
                 event: "focus",
-                callback: () => {
+                callback: (e) => {
+                  console.log("focus event");
+                  e.preventDefault();
                   handleInputFocus();
                 },
               },
@@ -102,8 +104,112 @@ function SearchInput() {
   });
 }
 
+function HistoryModal() {
+  const searchHistory = JSON.parse(
+    localStorage.getItem("searchHistory") || "[]"
+  );
+  console.log(
+    "searchHistory in history modal:",
+    searchHistory,
+    typeof searchHistory
+  );
+  return El({
+    element: "div",
+    id: "history-modal",
+    className: "p-2 mx-2 rounded-xl mt-1 hidden bg-gray-100",
+    children: [
+      // row 1
+      El({
+        element: "div",
+        className: "flex justify-between items-center",
+        children: [
+          El({
+            element: "h3",
+            className: "font-medium",
+            children: ["Recent Searches"],
+          }),
+          El({
+            element: "button",
+            className: "text-sm text-gray-500 hover:text-gray-700",
+            children: ["Clear All"],
+          }),
+        ],
+      }),
+      // divider line
+      El({
+        element: "div",
+        className: "w-full h-1 bg-gray-200 rounded-xl",
+      }),
+
+      // row 2 (search history)
+      El({
+        element: "div",
+        className: "flex flex-col gap-2",
+        children: searchHistory.map((search) => {
+          return SearchHistoryItem(search);
+        }),
+      }),
+    ],
+  });
+}
+
+function SearchHistoryItem(search) {
+  return El({
+    element: "p",
+    className: "flex items-center justify-between",
+    children: [
+      El({
+        element: "span",
+        eventListener: [
+          {
+            event: "click",
+            callback: () => {
+              const searchInput = document.getElementById("search-input");
+              searchInput.value = search;
+              // handleSearch(search);
+            },
+          },
+        ],
+        children: [search],
+      }),
+      El({
+        element: "button",
+        eventListener: [
+          {
+            event: "click",
+            callback: () => {
+              findRemoveFromHistory(search);
+            },
+          },
+        ],
+        children: ["X"],
+      }),
+    ],
+  });
+}
+
+function findRemoveFromHistory(search) {
+  const searchHistory = JSON.parse(
+    localStorage.getItem("searchHistory") || "[]"
+  );
+  const index = searchHistory.indexOf(search);
+  if (index !== -1) {
+    searchHistory.splice(index, 1);
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+  }
+  rerenderUI();
+}
+
+function rerenderUI() {
+  const historyModal = document.getElementById("history-modal");
+  historyModal.innerHTML = "";
+  historyModal.append(HistoryModal());
+}
+
 async function handleInputFocus() {
-  const searchHistory = localStorage.getItem("searchHistory");
+  const searchHistory = JSON.parse(
+    localStorage.getItem("searchHistory") || "[]"
+  );
   //  remove hidden class from history modal
   const historyModal = document.getElementById("history-modal");
   historyModal.classList.remove("hidden");
@@ -121,7 +227,19 @@ async function handleSearch(searchValue) {
 
     const searchResults = await searchProductsController(searchValue);
     if (searchResults.records.length) {
-      saveSearchToHistory(searchValue);
+      let searchHistory = JSON.parse(
+        localStorage.getItem("searchHistory") || "[]"
+      );
+
+      // Remove duplicate if exists
+      searchHistory = searchHistory.filter((item) => item !== searchValue);
+
+      localStorage.setItem(
+        "searchHistory",
+        searchHistory // Do I have gehtHistory or not?(it`s possible it didn`t exist the first time.)
+          ? JSON.stringify([...searchHistory, searchValue])
+          : JSON.stringify([searchHistory])
+      );
     }
 
     // Remove any existing "not found" messages or previous results
@@ -214,72 +332,6 @@ function SearchResults(searchResults, searchValue) {
       ProductGrid({ products: searchResults.records }),
     ],
   });
-}
-
-function HistoryModal() {
-  const searchHistory = JSON.parse(
-    localStorage.getItem("searchHistory") || "[]"
-  );
-  return El({
-    element: "div",
-    id: "history-modal",
-    className: "p-2 mx-2 bg-white rounded-xl mt-1 hidden ",
-    children: [
-      // row 1
-      El({
-        element: "div",
-        className: "flex justify-between items-center",
-        children: [
-          El({
-            element: "h3",
-            className: "font-medium",
-            children: ["Recent Searches"],
-          }),
-          El({
-            element: "button",
-            className: "text-sm text-gray-500 hover:text-gray-700",
-            children: ["Clear All"],
-          }),
-        ],
-      }),
-      // divider line
-      El({
-        element: "div",
-        className: "w-full h-1 bg-gray-200 rounded-xl",
-      }),
-
-      // row 2
-      El({
-        element: "div",
-        className: "flex items-center justify-between",
-        children: searchHistory.map((search) => {
-          return El({
-            element: "p",
-            className: "",
-            children: [search, "X"],
-          });
-        }),
-      }),
-    ],
-  });
-}
-
-// Add this function to handle saving searches
-function saveSearchToHistory(searchValue) {
-  // Get existing searches or initialize empty array
-  let searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
-
-  // Remove duplicate if exists
-  searchHistory = searchHistory.filter((item) => item !== searchValue);
-
-  // Add new search to beginning of array
-  searchHistory.unshift(searchValue);
-
-  // Keep only last 10 searches
-  searchHistory = searchHistory.slice(0, 10);
-
-  // Save back to localStorage
-  localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
 }
 
 function removeFromHistory(searchValue) {

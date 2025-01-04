@@ -21,7 +21,7 @@ const loadingElement = showLoading();
 
 try {
   detailProduct = await getProductByIdController(id);
-
+  console.log(detailProduct);
   hideLoading(loadingElement);
 
   if (detailProduct) {
@@ -75,28 +75,38 @@ function DetailPage() {
 function ProductImageSlider() {
   return El({
     element: "div",
-    className: "mb-6 ",
+    className: "mb-6",
     children: [
       El({
-        element: "swiper-container",
-        className: "h-[35vh]",
-        restAttrs: {
-          "data-swiper-pagination": "true",
-          "data-swiper-pagination-clickable": "true",
-        },
-        innerHTML: detailProduct.imageURL
-          .map(
-            (url) => `
-            <swiper-slide>
-              <img 
-                class="w-full h-full object-cover" 
-                src="${url}" 
-                alt="${detailProduct.name}"
-              />
-            </swiper-slide>
-          `
-          )
-          .join(""),
+        element: "div",
+        className: "swiper mySwiper h-[35vh]",
+        children: [
+          El({
+            element: "div",
+            className: "swiper-wrapper",
+            children: detailProduct.imageURL.map((url) =>
+              El({
+                element: "div",
+                className: "swiper-slide",
+                children: [
+                  El({
+                    element: "img",
+                    className: "w-full h-full object-cover",
+                    restAttrs: {
+                      src: url,
+                      alt: detailProduct.name,
+                    },
+                  }),
+                ],
+              })
+            ),
+          }),
+          // Pagination
+          El({
+            element: "div",
+            className: "swiper-pagination",
+          }),
+        ],
       }),
     ],
   });
@@ -421,9 +431,9 @@ function TotalAndCart() {
             children: [
               El({
                 element: "img",
-                src: "../../assets/cart.svg",
+                src: "../../pages/detail/assets/bag.png",
                 alt: "cart",
-                className: "w-6 h-6 invert",
+                className: "w-6 h-6",
               }),
               "Add to Cart",
             ],
@@ -433,3 +443,20 @@ function TotalAndCart() {
     ],
   });
 }
+
+var swiper = new Swiper(".mySwiper", {
+  spaceBetween: 2,
+  centeredSlides: true,
+  autoplay: {
+    delay: 5000,
+    disableOnInteraction: false,
+  },
+  pagination: {
+    el: ".swiper-pagination",
+    clickable: true,
+  },
+  navigation: {
+    nextEl: ".swiper-button-next",
+    prevEl: ".swiper-button-prev",
+  },
+});

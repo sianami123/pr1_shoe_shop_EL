@@ -1,0 +1,26 @@
+.swiper-pagination-bullet {
+  width: 7px;
+  height: 7px;
+  background: #4d4d4d;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: #000000;
+  width: 30px;
+  border-radius: 10px;
+}
+.swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet,
+.swiper-pagination-horizontal.swiper-pagination-bullets
+  .swiper-pagination-bullet {
+  margin: 0 3px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* مخفی کردن نوار اسکرول در کروم و سافاری */
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* مخفی کردن نوار اسکرول در اینترنت اکسپلورر */
+  scrollbar-width: none; /* مخفی کردن نوار اسکرول در فایرفاکس */
+}
