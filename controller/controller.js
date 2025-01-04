@@ -6,9 +6,10 @@ import {
   searchProductsApi,
   addToCartApi,
   getCartApi,
+  addToWishlistApi,
 } from "./api.js";
 
-// LOGIN CONTROLLER START
+//! LOGIN CONTROLLER START
 async function loginController({ email, password }) {
   try {
     const data = await loginApi({ email, password });
@@ -24,10 +25,9 @@ async function loginController({ email, password }) {
     return error;
   }
 }
-// LOGIN CONTROLLER END
-// PRODUCT CONTROLLER START
+//! LOGIN CONTROLLER END
+//! PRODUCT CONTROLLER START
 async function getAllProductsController(brand) {
-  console.log("brand:", brand);
   try {
     const data = await getAllProductsApi(brand);
     if (data?.message === "Invalid access token") {
@@ -61,12 +61,30 @@ async function searchProductsController(searchValue) {
     return error;
   }
 }
-// PRODUCT CONTROLLER END
-// CART CONTROLLER START
-async function addToCartController({ quantity, size, color, ...product }) {
+//! PRODUCT CONTROLLER END
+//! CART CONTROLLER START
+async function addToCartController({
+  selectedQuantity,
+  selectedSize,
+  selectedColor,
+  productId,
+  ...product
+}) {
+  console.log("add to cart controller:", {
+    selectedQuantity,
+    selectedSize,
+    selectedColor,
+    productId,
+    ...product,
+  });
   try {
-    const data = await addToCartApi({ quantity, size, color, ...product });
-    console.log("add to cart controller:", data);
+    const data = await addToCartApi({
+      selectedQuantity,
+      selectedSize,
+      selectedColor,
+      productId,
+      ...product,
+    });
     return data;
   } catch (error) {
     console.error("Add to cart controller failed", error);
@@ -84,7 +102,29 @@ async function getCartController() {
   }
 }
 
-// CART CONTROLLER END
+//! CART CONTROLLER END
+//! WISHLIST CONTROLLER START
+async function addToWishlistController({ productId, ...product }) {
+  console.log("add to wishlist controller:", { productId, ...product });
+  try {
+    const data = await addToWishlistApi({ productId, ...product });
+    return data;
+  } catch (error) {
+    console.error("Add to wishlist controller failed", error);
+    return error;
+  }
+}
+
+async function getWishlistController() {
+  try {
+    const data = await getWishlistApi();
+    return data;
+  } catch (error) {
+    console.error("Get wishlist controller failed", error);
+    return error;
+  }
+}
+//! WISHLIST CONTROLLER END
 export {
   loginController,
   getAllProductsController,
@@ -92,4 +132,6 @@ export {
   searchProductsController,
   addToCartController,
   getCartController,
+  addToWishlistController,
+  getWishlistController,
 };

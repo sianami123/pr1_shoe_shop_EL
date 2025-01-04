@@ -24,7 +24,7 @@ export function MostPopular() {
               El({
                 element: "a",
                 className: "text-gray-500",
-                restAttrs: { href: "#" },
+                restAttrs: { href: "/most_popular.html" },
                 children: ["See All"],
               }),
             ],

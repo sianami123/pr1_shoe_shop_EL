@@ -7,8 +7,9 @@ export function BackButton({ text = "", backURL = "" }) {
     eventListener: [
       {
         event: "click",
-        callback: () => {
-          window.location.href = backURL;
+        callback: (e) => {
+          e.preventDefault();
+          window.location.href = "/home.html";
         },
       },
     ],

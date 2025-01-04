@@ -59,7 +59,7 @@ function Login() {
                 element: "img",
                 className: "w-[54px] h-[81px] mb-[118px]",
                 restAttrs: {
-                  src: "./pages/login/assets/logo.png",
+                  src: "./assets/logo.png",
                   alt: "logo",
                 },
               }),

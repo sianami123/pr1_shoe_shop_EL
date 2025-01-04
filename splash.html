@@ -1,14 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>splash</title>
+    <meta charset="utf-8" />
+    <title>Swiper demo</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="./pages/splash/splash.css" />
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
+
   <body>
-    <div id="splash"></div>
-    <script src="pages/splash/splash.js" type="module"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide relative">
+          <div class="absolute top-[-42px]">
+            <img src="./pages/splash/assets/swiper1.png" alt="" class="" />
+            <p class="text-[32px] mt-[32px] font-bold">
+              We provide high quality products just for you
+            </p>
+          </div>
+        </div>
+        <div class="swiper-slide relative">
+          <div class="absolute top-[-42px]">
+            <img src="./pages/splash/assets/swiper2.png" alt="" class="" />
+            <p class="text-[32px] mt-[32px] font-bold">
+              Your satisfaction is our number one periority
+            </p>
+          </div>
+        </div>
+        <div class="swiper-slide relative">
+          <div class="absolute top-[-42px]">
+            <img src="./pages/splash/assets/swiper3.png" alt="" class="" />
+            <p class="text-[32px] mx-[32px] mt-[32px] font-bold">
+              Let’s fulfill your fashion needs with shoearight now!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="swiper-pagination"></div>
+      <button id="custom-next" class="custom-next-btn">Next</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="./pages/splash/splash.js"></script>
   </body>
 </html>

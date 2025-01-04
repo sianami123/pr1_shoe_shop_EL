@@ -14,7 +14,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const brandsParam = (urlParams.get("brands") || "all").toLowerCase();
 console.log("brandsParam from filter_pills:", brandsParam);
 
-export function FilterPills() {
+export function FilterPills({ url }) {
+  console.log("url from filter_pills:", url);
   return El({
     element: "div",
     className: "flex gap-2 mb-4 py-2 overflow-x-auto",
@@ -22,12 +23,13 @@ export function FilterPills() {
       Pill({
         ...pill,
         active: brandsParam === pill.name.toLowerCase(),
+        url,
       })
     ),
   });
 }
 
-function Pill({ name, active }) {
+function Pill({ name, active, url }) {
   return El({
     element: "button",
     className: `px-4 py-1 rounded-full ${
@@ -39,9 +41,9 @@ function Pill({ name, active }) {
         callback: () => {
           console.log("pill clicked", name);
           if (name === "All") {
-            window.location.href = `./home.html`;
+            window.location.href = url;
           } else {
-            window.location.href = `./home.html?brands=${name}`;
+            window.location.href = `${url}?brands=${name}`;
           }
         },
       },

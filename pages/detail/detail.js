@@ -1,23 +1,26 @@
 import { El } from "../../utils/El.js";
 import { BackButton } from "../../components/ui/back_button.js";
-import { getProductByIdController } from "../../controller/controller.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { showToast } from "../../components/toast.js";
-import { addToCartController } from "../../controller/controller.js";
+import {
+  addToCartController,
+  getProductByIdController,
+  addToWishlistController,
+} from "../../controller/controller.js";
 
 const detail = document.getElementById("detail");
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
 
-// Declare detailProduct in the outer scope
 let detailProduct;
 let quantity = 1;
+let selectedSize = null;
+let selectedColor = null;
 
 const loadingElement = showLoading();
 
 try {
   detailProduct = await getProductByIdController(id);
-  console.log("detailProduct:", detailProduct);
 
   hideLoading(loadingElement);
 
@@ -41,7 +44,6 @@ try {
 }
 
 function rerenderDetailPage() {
-  console.log("rerenderDetailPage");
   detail.innerHTML = "";
   detail.appendChild(DetailPage());
 }
@@ -59,7 +61,7 @@ function DetailPage() {
           ProductInfo(),
           El({
             element: "div",
-            className: "flex justify-between",
+            className: "flex justify-between space-x-4 mt-4 mb-6",
             children: [SizeSelector(), ColorSelector()],
           }),
           QuantitySelector(),
@@ -77,7 +79,7 @@ function ProductImageSlider() {
     children: [
       El({
         element: "swiper-container",
-        className: "h-[45vh]",
+        className: "h-[35vh]",
         restAttrs: {
           "data-swiper-pagination": "true",
           "data-swiper-pagination-clickable": "true",
@@ -118,6 +120,17 @@ function ProductInfo() {
           El({
             element: "button",
             className: "text-2xl text-gray-400 hover:text-red-500",
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  addToWishlistController({
+                    productId: detailProduct.id,
+                    ...detailProduct,
+                  });
+                },
+              },
+            ],
             children: [
               El({
                 element: "img",
@@ -129,6 +142,48 @@ function ProductInfo() {
           }),
         ],
       }),
+      El({
+        element: "div",
+        className: "flex items-center space-x-2",
+        children: [
+          El({
+            element: "p",
+            className:
+              "text-sm text-gray-500 px-2 bg-gray-200 rounded-full mr-2",
+            innerText: "5,371 sold",
+          }),
+          // star rating with svg
+          El({
+            element: "img",
+            src: "../../assets/star.svg",
+            alt: "star",
+            className: "w-4 h-4",
+          }),
+          El({
+            element: "p",
+            className: "text-sm text-gray-500",
+            innerText: "4.3 (5,389 reviews)",
+          }),
+        ],
+      }),
+      // divider line
+      El({
+        element: "div",
+        className: "h-1 w-full bg-gray-200",
+      }),
+      // description
+      El({
+        element: "p",
+        className: "text-sm text-gray-500",
+        innerText: "Description",
+      }),
+      El({
+        element: "p",
+        className: "text-sm text-gray-500",
+        innerText:
+          "lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
+      }),
+
       // Brand, Category, Gender
       El({
         element: "div",
@@ -165,7 +220,7 @@ function ProductInfo() {
 function SizeSelector() {
   return El({
     element: "div",
-    className: "space-y-3 ",
+    className: "space-y-3",
     children: [
       El({
         element: "h2",
@@ -178,8 +233,21 @@ function SizeSelector() {
         children: detailProduct.sizes.map((size) =>
           El({
             element: "button",
-            className: `w-8 h-8 rounded-full border border-gray-300 hover:border-black`,
+            className: `w-8 h-8 rounded-full border ${
+              selectedSize === size
+                ? "border-black bg-black text-white"
+                : "border-gray-300 hover:border-black"
+            }`,
             innerText: size,
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  selectedSize = size;
+                  rerenderDetailPage();
+                },
+              },
+            ],
           })
         ),
       }),
@@ -190,7 +258,7 @@ function SizeSelector() {
 function ColorSelector() {
   return El({
     element: "div",
-    className: "space-y-3 ",
+    className: "space-y-3",
     children: [
       El({
         element: "h2",
@@ -203,10 +271,23 @@ function ColorSelector() {
         children: detailProduct.colors.map((color) =>
           El({
             element: "button",
-            className: `w-8 h-8 rounded-full border-2 border-black`,
+            className: `w-8 h-8 rounded-full ${
+              selectedColor === color
+                ? "border-4 border-black"
+                : "border-2 border-gray-300"
+            }`,
             restAttrs: {
               style: `background-color: ${color}`,
             },
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  selectedColor = color;
+                  rerenderDetailPage();
+                },
+              },
+            ],
           })
         ),
       }),
@@ -217,20 +298,20 @@ function ColorSelector() {
 function QuantitySelector() {
   return El({
     element: "div",
-    className: "space-y-3 flex items-center space-x-4",
+    className: "space-y-3 flex items-center space-x-6",
     children: [
       El({
         element: "h2",
-        className: "font-semibold",
+        className: "font-semibold ",
         innerText: "Quantity",
       }),
       El({
         element: "div",
-        className: "inline-flex items-center border rounded-full",
+        className: "flex items-center border rounded-full",
         children: [
           El({
             element: "button",
-            className: "px-4 py-2 text-xl",
+            className: "px-1 py-2 text-xl",
             innerText: "−",
             eventListener: [
               {
@@ -254,7 +335,7 @@ function QuantitySelector() {
           }),
           El({
             element: "button",
-            className: "px-4 py-2 text-xl",
+            className: "px-1 py-2 text-xl",
             innerText: "+",
             eventListener: [
               {
@@ -310,17 +391,29 @@ function TotalAndCart() {
           }),
           El({
             element: "button",
-            className:
-              "bg-black text-white px-3 py-2 rounded-full flex items-center gap-2",
+            className: `w-[250px] bg-black text-white px-3 py-2 rounded-full flex items-center justify-center gap-2 ${
+              !selectedSize || !selectedColor
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`,
+            disabled: !selectedSize || !selectedColor,
             eventListener: [
               {
                 event: "click",
                 callback: () => {
+                  if (!selectedSize || !selectedColor) {
+                    showToast({
+                      message: "Please select size and color",
+                      type: "error",
+                    });
+                    return;
+                  }
                   addToCartController({
                     ...detailProduct,
-                    quantity,
-                    size,
-                    color,
+                    selectedColor,
+                    selectedSize,
+                    productId: detailProduct.id,
+                    selectedQuantity: quantity,
                   });
                 },
               },
@@ -330,7 +423,7 @@ function TotalAndCart() {
                 element: "img",
                 src: "../../assets/cart.svg",
                 alt: "cart",
-                className: "w-6 h-6 invert ",
+                className: "w-6 h-6 invert",
               }),
               "Add to Cart",
             ],

@@ -40,7 +40,7 @@ function ProductsPage() {
       Search(),
       Brands(),
       MostPopular(),
-      FilterPills(),
+      FilterPills({ url: "/home.html" }),
       ProductGrid({ products: allProducts.records || [] }),
       BottomNav(),
     ],

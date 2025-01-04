@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./pages/welcome/public.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="./pages/welcome/welcome.css" />
+  </head>
+  <body>
+    <div class="swiper mySwiper w-full h-sreen">
+      <div class="swiper-wrapper w-full h-sreen">
+        <div
+          class="swiper-slide w-full h-sreen justify-center items-center text-center"
+        >
+          <div
+            class="flex flex-col justify-between items-center w-full h-sreen gap-[300px] mt-[300px]"
+          >
+            <img
+              src="./pages/welcome/shoe.png"
+              class="max-w-[231px] max-h-[63px]"
+              alt=""
+            />
+            <div>
+              <div class="dot-spinner">
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+                <div class="dot-spinner__dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-slide flex page-2 relative">
+          <div class="backdrop-brightness-50 w-[100%] h-[100%] absolute">.</div>
+          <div
+            class="w-full z-10 self-end justify-self-end flex flex-col justify-start p-10 mb-10"
+          >
+            <p class="text-white text-[30px]">Welcome to 👋</p>
+            <p class="text-white text-[50px]">Shoea</p>
+            <p class="text-white">
+              The best sneakers & shoes e-commerse app of the century for your
+              fashion needs!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script src="./pages/welcome/welcome.js"></script>
+  </body>
+</html>

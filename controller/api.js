@@ -10,12 +10,23 @@ const GET_PRODUCT_BY_ID_URL = `${BASE_URL}/api/records/products/`;
 const CART_URL = `${BASE_URL}/api/records/cart`;
 const WISHLIST_URL = `${BASE_URL}/api/records/wishlist`;
 
-// CART API
-async function addToCartApi({ quantity, size, color, ...product }) {
+//! CART API
+async function addToCartApi({
+  selectedQuantity,
+  selectedSize,
+  selectedColor,
+  ...product
+}) {
   try {
     const response = await fetch(CART_URL, {
       method: "POST",
-      body: JSON.stringify({ quantity, size, color, ...product }),
+      body: JSON.stringify({
+        selectedQuantity,
+        selectedSize,
+        selectedColor,
+        productId: product.id,
+        ...product,
+      }),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -70,17 +81,20 @@ async function updateCartQuantityApi(id, quantity) {
     console.error("Update cart quantity API failed", error);
   }
 }
-// CART API END
-
-// WISHLIST API
-async function addToWishlistApi({ id, name, imageURL, price, brand }) {
+//! CART API END
+//! WISHLIST API START
+async function addToWishlistApi({ productId, ...product }) {
   try {
     const response = await fetch(WISHLIST_URL, {
       method: "POST",
-      body: JSON.stringify({ id, name, imageURL, price, brand }),
+      body: JSON.stringify({ productId, ...product }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
     });
     const data = await response.json();
-    console.log("add to wishlist data:", data);
     return data;
   } catch (error) {
     console.error("Add to wishlist API failed", error);
@@ -108,32 +122,13 @@ async function removeFromWishlistApi(id) {
     console.error("Remove from wishlist API failed", error);
   }
 }
-// WISHLIST API END
-
-async function loginApi({ email, password }) {
-  try {
-    const response = await fetch(LOGIN_URL, {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: {
-        "Content-Type": "application/json",
-        api_key,
-      },
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Login API failed", error);
-  }
-}
-
+//! WISHLIST API END
+//! PRODUCT API START
 async function getAllProductsApi(brand) {
-  console.log("brand:", brand);
   let url = GET_ALL_PRODUCTS_URL;
   if (brand && brand !== "" && brand.toLowerCase() !== "all") {
     url = `${GET_ALL_PRODUCTS_URL}?filterKey=brand&filterValue=${brand}`;
   }
-  console.log("url:", url);
   try {
     const response = await fetch(url, {
       headers: {
@@ -184,7 +179,26 @@ async function searchProductsApi(searchValue) {
     console.error("Search products API failed", error);
   }
 }
+//! PRODUCT API END
 
+//! LOGIN API START
+async function loginApi({ email, password }) {
+  try {
+    const response = await fetch(LOGIN_URL, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Login API failed", error);
+  }
+}
+//! LOGIN API END
 export {
   loginApi,
   getAllProductsApi,
