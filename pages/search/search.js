@@ -11,64 +11,12 @@ const searchDOM = document.getElementById("search");
 
 searchDOM.append(
   BackButton({ text: "Back", backURL: "/home.html" }),
-  SearchInput()
+  SearchInput(),
+  HistoryModal()
 );
 
 let searchValue = "";
 let searchHistory = [];
-
-async function handleSearch(searchValue) {
-  const loadingElement = showLoading();
-
-  try {
-    // Clear previous results first
-    const existingResults = document.getElementById("search-results");
-    if (existingResults) {
-      existingResults.remove();
-    }
-
-    const searchResults = await searchProductsController(searchValue);
-    console.log("search results", searchResults);
-
-    // Remove any existing "not found" messages or previous results
-    const allPreviousResults = searchDOM.querySelectorAll(
-      "#search-results, .search-results-container"
-    );
-    allPreviousResults.forEach((element) => element.remove());
-
-    const searchResultsElement = SearchResults(searchResults, searchValue);
-    searchDOM.append(searchResultsElement);
-
-    hideLoading(loadingElement);
-  } catch (error) {
-    hideLoading(loadingElement);
-    console.error("Error loading products:", error);
-  }
-}
-
-async function handleInputFocus() {
-  // Remove existing modal if it exists
-  const existingModal = document.querySelector(".search-history-modal");
-  if (existingModal) existingModal.remove();
-
-  const modal = SearchHistoryModal();
-  modal.classList.add("search-history-modal");
-
-  // Get the search container and append modal
-  const searchContainer = document.querySelector(".search-container");
-  if (searchContainer) {
-    searchContainer.appendChild(modal);
-  }
-}
-
-// Add this function to handle clicking outside the modal
-document.addEventListener("click", (e) => {
-  const modal = document.querySelector(".search-history-modal");
-  const searchContainer = document.querySelector(".search-container");
-  if (modal && searchContainer && !searchContainer.contains(e.target)) {
-    modal.remove();
-  }
-});
 
 function SearchInput() {
   return El({
@@ -154,6 +102,44 @@ function SearchInput() {
   });
 }
 
+async function handleInputFocus() {
+  const searchHistory = localStorage.getItem("searchHistory");
+  //  remove hidden class from history modal
+  const historyModal = document.getElementById("history-modal");
+  historyModal.classList.remove("hidden");
+}
+
+async function handleSearch(searchValue) {
+  const loadingElement = showLoading();
+
+  try {
+    // Clear previous results first
+    const existingResults = document.getElementById("search-results");
+    if (existingResults) {
+      existingResults.remove();
+    }
+
+    const searchResults = await searchProductsController(searchValue);
+    if (searchResults.records.length) {
+      saveSearchToHistory(searchValue);
+    }
+
+    // Remove any existing "not found" messages or previous results
+    const allPreviousResults = searchDOM.querySelectorAll(
+      "#search-results, .search-results-container"
+    );
+    allPreviousResults.forEach((element) => element.remove());
+
+    const searchResultsElement = SearchResults(searchResults, searchValue);
+    searchDOM.append(searchResultsElement);
+
+    hideLoading(loadingElement);
+  } catch (error) {
+    hideLoading(loadingElement);
+    console.error("Error loading products:", error);
+  }
+}
+
 function SearchResults(searchResults, searchValue) {
   if (!searchResults?.records?.length) {
     return El({
@@ -230,74 +216,79 @@ function SearchResults(searchResults, searchValue) {
   });
 }
 
-function SearchHistoryModal() {
-  const historyString = getLocalStorage("searchHistory");
-  const history = JSON.parse(historyString);
-
+function HistoryModal() {
+  const searchHistory = JSON.parse(
+    localStorage.getItem("searchHistory") || "[]"
+  );
   return El({
     element: "div",
-    className:
-      "absolute top-full left-0 right-0 bg-white shadow-lg rounded-xl mt-2 z-50 max-h-[70vh] overflow-auto mx-2",
+    id: "history-modal",
+    className: "p-2 mx-2 bg-white rounded-xl mt-1 hidden ",
     children: [
-      // Header
+      // row 1
       El({
         element: "div",
-        className: "px-4 py-3 flex justify-between items-center",
+        className: "flex justify-between items-center",
         children: [
           El({
-            element: "span",
-            className: "text-base font-medium text-gray-900",
-            children: ["Recent"],
+            element: "h3",
+            className: "font-medium",
+            children: ["Recent Searches"],
           }),
           El({
             element: "button",
-            className: "text-sm text-gray-500",
+            className: "text-sm text-gray-500 hover:text-gray-700",
             children: ["Clear All"],
-            eventListener: [
-              {
-                event: "click",
-                callback: () => {
-                  setLocalStorage("searchHistory", "[]");
-                  document.querySelector(".search-history-modal").remove();
-                },
-              },
-            ],
           }),
         ],
       }),
-      // Search History List
+      // divider line
       El({
         element: "div",
-        className: "overflow-auto",
-        children: history.map((term) =>
-          El({
-            element: "div",
-            className:
-              "flex items-center justify-between px-4 py-3 hover:bg-gray-50",
-            children: [
-              El({
-                element: "span",
-                className: "flex-1 text-gray-700",
-                children: [term],
-              }),
-              El({
-                element: "button",
-                className: "ml-2 text-gray-400",
-                innerHTML: `❌`,
-                eventListener: [
-                  {
-                    event: "click",
-                    callback: () => {
-                      document.querySelector(".search-history-modal").remove();
-                      handleSearch(term);
-                    },
-                  },
-                ],
-              }),
-            ],
-          })
-        ),
+        className: "w-full h-1 bg-gray-200 rounded-xl",
+      }),
+
+      // row 2
+      El({
+        element: "div",
+        className: "flex items-center justify-between",
+        children: searchHistory.map((search) => {
+          return El({
+            element: "p",
+            className: "",
+            children: [search, "X"],
+          });
+        }),
       }),
     ],
   });
+}
+
+// Add this function to handle saving searches
+function saveSearchToHistory(searchValue) {
+  // Get existing searches or initialize empty array
+  let searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+
+  // Remove duplicate if exists
+  searchHistory = searchHistory.filter((item) => item !== searchValue);
+
+  // Add new search to beginning of array
+  searchHistory.unshift(searchValue);
+
+  // Keep only last 10 searches
+  searchHistory = searchHistory.slice(0, 10);
+
+  // Save back to localStorage
+  localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+}
+
+function removeFromHistory(searchValue) {
+  let searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+  searchHistory = searchHistory.filter((item) => item !== searchValue);
+  localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+}
+
+// Add this function to clear all history
+function clearSearchHistory() {
+  localStorage.removeItem("searchHistory");
 }

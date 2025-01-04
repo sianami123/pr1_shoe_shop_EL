@@ -8,32 +8,36 @@ const navItems = [
   {
     name: "Home",
     route: "/home.html",
-    icon: "home.svg",
+    whiteIcon: "Home.Icon.white.svg",
+    blackIcon: "Home.Icon.Black.svg",
   },
   {
     name: "Cart",
     route: "/cart.html",
-    icon: "cart.svg",
+    whiteIcon: "Bag.white.Hollow.svg",
+    blackIcon: "Bag.Black.Thick.svg",
   },
   {
     name: "Orders",
     route: "/orders.html",
-    icon: "orders.svg",
+    whiteIcon: "Shopping-white-Hollow.svg",
+    blackIcon: "Shopping-Black-Tick.svg",
   },
   {
     name: "Wallet",
-    route: "/wallet.html",
-    icon: "wallet.svg",
+    route: "#",
+    whiteIcon: "wallet.svg",
+    blackIcon: "wallet.svg",
   },
   {
     name: "Profile",
-    route: "/profile.html",
-    icon: "profile.svg",
+    route: "#",
+    whiteIcon: "profile.svg",
+    blackIcon: "profile.svg",
   },
 ];
 
-function NavItem({ name, icon, route }) {
-  console.log(route.slice(1));
+function NavItem({ name, whiteIcon, blackIcon, route }) {
   return El({
     element: "button",
     className: "flex flex-col items-center",
@@ -48,7 +52,9 @@ function NavItem({ name, icon, route }) {
     children: [
       El({
         element: "img",
-        src: `./components/bottom_nav/${icon}`,
+        src: `./components/bottom_nav/IconNavigation/${
+          currentPage === route.slice(1) ? blackIcon : whiteIcon
+        }`,
         className: "w-6 h-6 stroke-red-400",
       }),
       El({

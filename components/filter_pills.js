@@ -12,10 +12,8 @@ const pills = [
 
 const urlParams = new URLSearchParams(window.location.search);
 const brandsParam = (urlParams.get("brands") || "all").toLowerCase();
-console.log("brandsParam from filter_pills:", brandsParam);
 
 export function FilterPills({ url }) {
-  console.log("url from filter_pills:", url);
   return El({
     element: "div",
     className: "flex gap-2 mb-4 py-2 overflow-x-auto",

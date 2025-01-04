@@ -11,17 +11,16 @@ import { showLoading, hideLoading } from "../../components/loading.js";
 import { getLocalStorage } from "../../controller/localStorage.js";
 const urlParams = new URLSearchParams(window.location.search);
 const brandsParam = urlParams.get("brands");
-console.log("brandsParam:", brandsParam);
 
 let allProducts;
 
 const user = getLocalStorage("user");
-console.log("user:", user);
+
 const loadingElement = showLoading();
 
 try {
   allProducts = await getAllProductsController(brandsParam);
-  console.log("allProducts in products.js:", allProducts.records);
+
   hideLoading(loadingElement);
 } catch (error) {
   hideLoading(loadingElement);
