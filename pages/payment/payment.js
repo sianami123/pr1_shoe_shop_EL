@@ -33,7 +33,7 @@ const paymentMethods = [
   },
 ];
 
-payment.appendChild(PaymentPage());
+payment.appendChild(BackButton(), PaymentPage());
 
 function PaymentPage() {
   return El({
