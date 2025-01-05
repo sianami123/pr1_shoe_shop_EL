@@ -25,7 +25,7 @@ function ProductCard({ imageURL, name, price, id }) {
         element: "img",
         className: "w-full h-40 object-cover rounded-lg bg-gray-100",
         restAttrs: {
-          src: imageURL || "./assets/shoe_card.png",
+          src: imageURL[0] || "./assets/shoe_card.png",
           alt: name,
         },
       }),

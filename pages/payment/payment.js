@@ -8,7 +8,7 @@ const paymentMethods = [
   {
     name: "My Wallet",
     balance: "957.99",
-    icon: "wallet-black.svg",
+    icon: "wallet.svg",
     id: "wallet",
   },
   {
@@ -18,12 +18,12 @@ const paymentMethods = [
   },
   {
     name: "Google Pay",
-    icon: "google-pay.svg",
+    icon: "google.svg",
     id: "google",
   },
   {
     name: "Apple Pay",
-    icon: "apple-pay.svg",
+    icon: "apple.svg",
     id: "apple",
   },
   {
@@ -33,7 +33,8 @@ const paymentMethods = [
   },
 ];
 
-payment.appendChild(BackButton(), PaymentPage());
+payment.appendChild(PaymentPage());
+payment.appendChild(showSuccessModal());
 
 function PaymentPage() {
   return El({
@@ -45,36 +46,14 @@ function PaymentPage() {
         element: "div",
         className: "flex items-center justify-between p-4 border-b",
         children: [
-          El({
-            element: "div",
-            className: "flex items-center gap-3",
-            children: [
-              El({
-                element: "button",
-                className: "p-1",
-                onclick: () => history.back(),
-                children: [
-                  El({
-                    element: "img",
-                    src: "./assets/back_arrow.svg",
-                    className: "w-6 h-6",
-                  }),
-                ],
-              }),
-              El({
-                element: "h1",
-                className: "text-lg font-medium",
-                children: "Payment Methods",
-              }),
-            ],
-          }),
+          BackButton({ text: "Payment", backURL: "/cart.html" }),
           El({
             element: "button",
             className: "p-1",
             children: [
               El({
                 element: "img",
-                src: "./assets/more.svg",
+                src: "./pages/payment/assets/add.svg",
                 className: "w-6 h-6",
               }),
             ],
@@ -101,10 +80,15 @@ function PaymentPage() {
           El({
             element: "button",
             className: "w-full bg-black text-white py-3.5 rounded-full",
-            onclick: () => {
-              const modal = showSuccessModal();
-              document.body.appendChild(modal);
-            },
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  const successModal = document.getElementById("success-modal");
+                  successModal.classList.remove("hidden");
+                },
+              },
+            ],
             children: "Confirm Payment",
           }),
         ],
@@ -116,7 +100,7 @@ function PaymentPage() {
 function PaymentMethodItem({ name, balance, icon, id }) {
   return El({
     element: "div",
-    className: "flex items-center justify-between py-4",
+    className: "flex items-center justify-between py-4 ",
     children: [
       El({
         element: "div",
@@ -128,7 +112,7 @@ function PaymentMethodItem({ name, balance, icon, id }) {
             children: [
               El({
                 element: "img",
-                src: `./assets/${icon}`,
+                src: `./pages/payment/assets/${icon}`,
                 className: "w-6 h-6",
                 restAttrs: {
                   alt: name,
@@ -172,73 +156,82 @@ function PaymentMethodItem({ name, balance, icon, id }) {
 function showSuccessModal() {
   return El({
     element: "div",
-    className: "fixed inset-0 bg-white z-50",
-    id: "successModal",
+    className: "fixed inset-0 z-10 hidden",
+    id: "success-modal",
     children: [
-      // Success Content
+      // Overlay
       El({
         element: "div",
-        className:
-          "flex flex-col items-center justify-center min-h-screen px-4",
+        className: "fixed inset-0 bg-black bg-opacity-70",
+        eventListener: [
+          {
+            event: "click",
+            callback: () => {
+              console.log("click");
+              const successModal = document.getElementById("success-modal");
+              successModal.classList.add("hidden");
+            },
+          },
+        ],
         children: [
-          // Circle with cart icon and dots
           El({
             element: "div",
-            className: "relative mb-6",
+            className: "absolute left-0 top-0 z-20 flex w-full h-screen",
             children: [
-              // Black circle with cart
               El({
                 element: "div",
                 className:
-                  "w-20 h-20 bg-black rounded-full flex items-center justify-center relative z-10",
+                  "w-full flex flex-col gap-3 justify-center items-center p-5 bg-white mx-10 h-[508px] mt-[120px] rounded-[50px]",
                 children: [
                   El({
                     element: "img",
-                    src: "./assets/cart-white.svg",
-                    className: "w-10 h-10",
+                    src: "./pages/payment/assets/payment-confirm.jpg",
+                    restAttrs: { alt: "" },
+                  }),
+                  El({
+                    element: "h3",
+                    className: "text-[25px] font-medium",
+                    children: "Order Successfull!",
+                  }),
+                  El({
+                    element: "p",
+                    children: "You have Successfully made order.",
+                  }),
+                  El({
+                    element: "div",
+                    className: "flex flex-col pt-3 gap-3 w-full",
+                    children: [
+                      El({
+                        element: "div",
+                        className:
+                          "bg-black p-5 text-white rounded-full w-full text-center",
+                        children: [
+                          El({
+                            element: "h3",
+                            children: "View Order",
+                          }),
+                        ],
+                      }),
+                      El({
+                        element: "div",
+                        className:
+                          "bg-gray-200 p-5 text-black rounded-full w-full text-center",
+                        children: [
+                          El({
+                            element: "h3",
+                            children: "View E-Receipt",
+                          }),
+                        ],
+                      }),
+                    ],
                   }),
                 ],
               }),
             ],
           }),
-          // Success text
-          El({
-            element: "h2",
-            className: "text-xl font-medium mb-2 text-center",
-            children: "Order Successful!",
-          }),
-          El({
-            element: "p",
-            className: "text-gray-500 text-sm mb-8 text-center",
-            children: "You have successfully made order",
-          }),
-          // Action buttons
-          El({
-            element: "div",
-            className: "flex flex-col gap-3 w-full max-w-xs",
-            children: [
-              El({
-                element: "button",
-                className:
-                  "w-full bg-black text-white py-3.5 rounded-full font-medium",
-                onclick: () => {
-                  window.location.href = "/orders.html";
-                },
-                children: "View Order",
-              }),
-              El({
-                element: "button",
-                className: "w-full text-gray-500 py-3.5 font-medium",
-                onclick: () => {
-                  // Handle receipt view
-                  console.log("View receipt");
-                },
-                children: "View E-Receipt",
-              }),
-            ],
-          }),
         ],
       }),
+      // Modal Container
     ],
   });
 }

@@ -79,6 +79,24 @@ function CartItems() {
 }
 
 function CartItem({ name, price, color, size, image }) {
+  const colorClass =
+    color === "Black"
+      ? "bg-black-100"
+      : color === "White"
+      ? "bg-white"
+      : color === "Gray"
+      ? "bg-gray-100"
+      : color === "Red"
+      ? "bg-red-100"
+      : color === "Blue"
+      ? "bg-blue-100"
+      : color === "Green"
+      ? "bg-green-100"
+      : color === "Yellow"
+      ? "bg-yellow-100"
+      : color === "Purple"
+      ? "bg-purple-100"
+      : "bg-white";
   return El({
     element: "div",
     className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
@@ -140,7 +158,9 @@ function CartItem({ name, price, color, size, image }) {
             children: [
               El({
                 element: "div",
-                className: `bg-${color.toLowerCase()} rounded-full w-4 h-4`,
+                className: `bg-${
+                  color === "Black" ? "black-100" : color.toLowerCase()
+                } rounded-full w-4 h-4`,
               }),
               El({
                 element: "p",

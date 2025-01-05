@@ -2,40 +2,48 @@ import { El } from "../../utils/El.js";
 
 const brandItems = [
   {
-    name: "NIKE",
+    name: "Nike",
     image: "./components/brands/assets/nike.png",
+    brandParam: "NIKE",
   },
   {
-    name: "ADIDAS",
+    name: "Adidas",
     image: "./components/brands/assets/adidas.svg",
+    brandParam: "ADIDAS",
   },
   {
-    name: "REEBOK",
+    name: "Reebok",
     image: "./components/brands/assets/reebok.svg",
+    brandParam: "REEBOK",
   },
   {
-    name: "PUMA",
+    name: "Puma",
     image: "./components/brands/assets/Puma.svg",
+    brandParam: "PUMA",
   },
   {
-    name: "ASICS",
+    name: "Asics",
     image: "./components/brands/assets/Asics.svg",
+    brandParam: "ASICS",
   },
   {
-    name: "NEW BALANCE",
+    name: "New Balance",
     image: "./components/brands/assets/newBalans.svg",
+    brandParam: "NEW BALANCE",
   },
   {
-    name: "CONVERSE",
+    name: "Converse",
     image: "./components/brands/assets/Converse.svg",
+    brandParam: "CONVERSE",
   },
   {
     name: "More",
     image: "./components/brands/assets/more.svg",
+    brandParam: "MORE",
   },
 ];
 
-function BrandItem({ name, image }) {
+function BrandItem({ name, image, brandParam }) {
   return El({
     element: "div",
     className: "flex flex-col items-center",
@@ -44,7 +52,7 @@ function BrandItem({ name, image }) {
         event: "click",
         callback: () => {
           console.log("brand clicked", name);
-          window.location.href = `./brands.html?brands=${name}`;
+          window.location.href = `./brands.html?brands=${brandParam}`;
         },
       },
     ],
@@ -66,7 +74,7 @@ function BrandItem({ name, image }) {
       }),
       El({
         element: "span",
-        className: "text-sm mt-2",
+        className: "text-xs mt-2 truncate w-16 text-center",
         children: [name],
       }),
     ],
