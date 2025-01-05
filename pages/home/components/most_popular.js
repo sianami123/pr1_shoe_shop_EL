@@ -1,6 +1,4 @@
-import { El } from "../utils/El.js";
-import { FilterPills } from "./filter_pills.js";
-import { ProductGrid } from "./product_grid.js";
+import { El } from "../../../utils/El.js";
 
 export function MostPopular() {
   return El({

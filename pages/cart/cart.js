@@ -4,12 +4,11 @@ const cart = document.getElementById("cart");
 console.log(cart);
 
 let activeItemToRemove = null;
-
+cart.appendChild(RemoveFromCartModal());
 cart.appendChild(CartHeader());
 cart.appendChild(CartItems());
 cart.appendChild(CartFooter());
 cart.appendChild(BottomNav());
-cart.appendChild(RemoveModal());
 
 function CartHeader() {
   return El({
@@ -18,7 +17,7 @@ function CartHeader() {
     children: [
       El({
         element: "div",
-        className: "flex items-center gap-2",
+        className: "flex items-center gap-4",
         children: [
           El({ element: "img", src: "./assets/logo.png", className: "w-5" }),
           "My Cart",
@@ -38,102 +37,173 @@ function CartHeader() {
 function CartItems() {
   return El({
     element: "div",
-    className: "px-4",
+    className: "px-4 flex flex-col gap-4 py-4 bg-gray-50",
     children: [
       CartItem({
         name: "Air Jordan 3 Retro",
         price: "108.00",
         image: "./assets/shoe_card.png",
         size: "Size • 42",
-        color: "Black • Gray",
+        color: "Gray",
       }),
       CartItem({
         name: "Running Sportwear",
         price: "240.00",
-        image: "./assets/shoe2.jpg",
+        image: "./assets/shoe_card.png",
         size: "Size • 42",
-        color: "Red • White",
+        color: "Black",
       }),
       CartItem({
         name: "New Balance 996",
         price: "125.00",
-        image: "./assets/shoe3.jpg",
+        image: "./assets/shoe_card.png",
         size: "Size • 42",
-        color: "Gray • Gray",
+        color: "Red",
       }),
       CartItem({
         name: "Fila Running Snea...",
         price: "85.00",
-        image: "./assets/shoe4.jpg",
+        image: "./assets/shoe_card.png",
         size: "Size • 42",
-        color: "Black • White",
+        color: "Black",
+      }),
+      CartItem({
+        name: "Fila Running Snea...",
+        price: "85.00",
+        image: "./assets/shoe_card.png",
+        size: "Size • 42",
+        color: "Black",
       }),
     ],
   });
 }
 
-function CartItem({ name, price, image, size, color }) {
+function CartItem({ name, price, color, size, image }) {
   return El({
     element: "div",
-    className:
-      "flex justify-between items-center py-4 border-b border-gray-100",
+    className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
     children: [
       El({
         element: "div",
-        className: "flex gap-4",
+        className:
+          "rounded-[20px] min-w-[130px] overflow-hidden h-[130px] w-[110px]",
         children: [
           El({
             element: "img",
             src: image,
-            className: "w-20 h-20 object-cover rounded-lg",
-          }),
-          El({
-            element: "div",
-            className: "flex flex-col justify-between",
-            children: [
-              El({ element: "h3", className: "font-medium", children: name }),
-              El({
-                element: "p",
-                className: "text-gray-500 text-sm",
-                children: size,
-              }),
-              El({
-                element: "p",
-                className: "text-gray-500 text-sm",
-                children: color,
-              }),
-              El({
-                element: "p",
-                className: "font-medium",
-                children: `$${price}`,
-              }),
-            ],
+            className: "min-w-[130px] h-[160px]",
+            restAttrs: {
+              alt: name,
+            },
           }),
         ],
       }),
       El({
         element: "div",
-        className: "flex flex-col items-center gap-3",
+        className: "flex flex-col justify-between w-full gap-1",
         children: [
           El({
-            element: "button",
-            onclick: () => showRemoveModal({ name, price, image, size, color }),
+            element: "div",
+            className: "flex items-center justify-cente justify-between",
             children: [
               El({
-                element: "img",
-                src: "./assets/trash.svg",
-                className: "w-5 h-5",
+                element: "h3",
+                className: "font-medium text-[18px]",
+                children: name,
+              }),
+              El({
+                element: "button",
+                eventListener: [
+                  {
+                    event: "click",
+                    callback: () => {
+                      handleShowRemoveModal();
+                    },
+                  },
+                ],
+                children: [
+                  El({
+                    element: "img",
+                    src: "../../assets/trash.svg",
+                    className: "w-[30px] p-1",
+                    restAttrs: {
+                      alt: "remove item",
+                    },
+                  }),
+                ],
               }),
             ],
           }),
           El({
             element: "div",
-            className:
-              "flex items-center gap-2 bg-gray-200 rounded-full px-3 py-1",
+            className: "flex justify-cente items-center gap-2",
             children: [
-              El({ element: "button", className: "text-xl", children: "−" }),
-              El({ element: "span", children: "1" }),
-              El({ element: "button", className: "text-xl", children: "+" }),
+              El({
+                element: "div",
+                className: `bg-${color.toLowerCase()} rounded-full w-4 h-4`,
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `${color}`,
+              }),
+              El({
+                element: "div",
+                className: "bg-gray-400 h-[12px] w-[1px]",
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `Size = ${size}`,
+              }),
+            ],
+          }),
+          El({
+            element: "div",
+            className: "flex items-center justify-between",
+            children: [
+              El({
+                element: "p",
+                className: "text-[20px] font-medium",
+                children: `$${price}`,
+              }),
+              El({
+                element: "div",
+                className: "flex items-center ml-5 gap-3",
+                children: [
+                  El({
+                    element: "div",
+                    className:
+                      "flex bg-[#ececed] justify-between w-[90px] rounded-[30px]",
+                    children: [
+                      El({
+                        element: "button",
+                        className:
+                          "rounded-[30px] font-medium text-[17px] py-1 pl-4",
+                        id: "quantityNegative",
+                        children: "-",
+                      }),
+                      El({
+                        element: "input",
+                        className:
+                          "bg-black w-full bg-opacity-0 text-center outline-none text-[17px]",
+                        id: "quantityInput",
+                        restAttrs: {
+                          type: "number",
+                          value: "0",
+                        },
+                      }),
+                      El({
+                        element: "button",
+                        className:
+                          "rounded-[30px] font-medium text-[17px] py-1 pr-4",
+                        id: "quantityPlus",
+                        children: "+",
+                      }),
+                    ],
+                  }),
+                ],
+              }),
             ],
           }),
         ],
@@ -181,56 +251,185 @@ function CartFooter() {
   });
 }
 
-function RemoveModal() {
+function RemoveFromCartModal() {
   return El({
     element: "div",
-    className: "fixed inset-0 bg-black/50 z-50 hidden",
-    id: "removeModal",
-    onclick: (e) => {
-      if (e.target.id === "removeModal") hideRemoveModal();
-    },
+    id: "removeFromCartModal",
+    className:
+      "fixed inset-0 bg-black/50 z-50 hidden transition-all duration-3000 ease-in-out",
+    eventListener: [
+      {
+        event: "click",
+        callback: () => {
+          handleHideRemoveModal();
+        },
+      },
+    ],
     children: [
       El({
         element: "div",
         className:
-          "fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 translate-y-full transition-transform duration-300",
-        id: "modalContent",
+          "bg-white fixed bottom-0 left-0 right-0 rounded-t-3xl p-4 flex flex-col items-center justify-center gap-4 transform transition-transform duration-300 ease-in-out",
+        children: [
+          El({
+            element: "h3",
+            className: "text-2xl font-bold",
+            children: "Remove From Cart?",
+          }),
+          RemoveCartItem({
+            productName: "Air Jordan 3 Retro",
+            productPrice: "108.00",
+            productColor: "Black",
+            productSize: "Size • 42",
+            productImage: "./assets/shoe_card.png",
+          }),
+          El({
+            element: "div",
+            className: "flex justify-between gap-4 px-4 py-3 w-full",
+            children: [
+              El({
+                element: "button",
+                className: "py-3 w-full text-center bg-gray-200 rounded-[30px]",
+                children: "Cancel",
+                eventListener: [
+                  {
+                    event: "click",
+                    callback: () => {
+                      handleHideRemoveModal();
+                    },
+                  },
+                ],
+              }),
+              El({
+                element: "button",
+                className:
+                  "py-3 w-full text-center text-white bg-black shadow-xl rounded-[30px]",
+                children: "Yes, Remove",
+                eventListener: [
+                  {
+                    event: "click",
+                    callback: () => {
+                      handleHideRemoveModal();
+                    },
+                  },
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+}
+
+function RemoveCartItem({
+  productName,
+  productPrice,
+  productColor,
+  productSize,
+  productImage,
+}) {
+  return El({
+    element: "div",
+    className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
+    children: [
+      El({
+        element: "div",
+        className:
+          "rounded-[20px] min-w-[130px] overflow-hidden h-[130px] w-[110px]",
+        children: [
+          El({
+            element: "img",
+            src: productImage,
+            className: "w-full h-full",
+            restAttrs: {
+              alt: productName,
+            },
+          }),
+        ],
+      }),
+      El({
+        element: "div",
+        className: "flex flex-col justify-between w-full gap-4",
         children: [
           El({
             element: "div",
-            className: "flex flex-col items-center gap-6",
+            className: "flex items-center justify-cente justify-between",
             children: [
               El({
                 element: "h3",
-                className: "text-xl font-medium",
-                children: "Remove From Cart?",
+                className: "font-medium text-[18px]",
+                children: productName,
+              }),
+            ],
+          }),
+          El({
+            element: "div",
+            className: "flex justify-cente items-center gap-2",
+            children: [
+              El({
+                element: "div",
+                className: `bg-${productColor.toLowerCase()} rounded-full w-4 h-4`,
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `${productColor}`,
               }),
               El({
                 element: "div",
-                className: "w-full text-center",
-                id: "modalItemDetails",
-                // Item details will be inserted here
+                className: "bg-gray-400 h-[12px] w-[1px]",
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `Size = ${productSize}`,
+              }),
+            ],
+          }),
+          El({
+            element: "div",
+            className: "flex items-center justify-between",
+            children: [
+              El({
+                element: "p",
+                className: "text-[20px] font-medium",
+                children: `$${productPrice}`,
               }),
               El({
                 element: "div",
-                className: "flex w-full gap-4",
+                className: "flex items-center ml-5 gap-3",
                 children: [
                   El({
-                    element: "button",
+                    element: "div",
                     className:
-                      "flex-1 py-3.5 rounded-full border border-gray-200 text-sm",
-                    onclick: hideRemoveModal,
-                    children: "Cancel",
-                  }),
-                  El({
-                    element: "button",
-                    className:
-                      "flex-1 py-3.5 rounded-full bg-black text-white text-sm",
-                    onclick: () => {
-                      // Add remove logic here
-                      hideRemoveModal();
-                    },
-                    children: "Yes, Remove",
+                      "flex bg-[#ececed] justify-between w-[90px] rounded-[30px]",
+                    children: [
+                      El({
+                        element: "button",
+                        className:
+                          "rounded-[30px] font-medium text-[17px] py-1 pl-4",
+                        id: "quantityNegative",
+                        children: "-",
+                      }),
+                      El({
+                        element: "input",
+                        className:
+                          "bg-black w-full bg-opacity-0 text-center outline-none text-[17px]",
+                        id: "quantityInput",
+                        restAttrs: {
+                          type: "number",
+                          value: "0",
+                        },
+                      }),
+                      El({
+                        element: "button",
+                        className:
+                          "rounded-[30px] font-medium text-[17px] py-1 pr-4",
+                        id: "quantityPlus",
+                        children: "+",
+                      }),
+                    ],
                   }),
                 ],
               }),
@@ -242,105 +441,11 @@ function RemoveModal() {
   });
 }
 
-function CartItemDisplay({
-  name,
-  price,
-  image,
-  size,
-  color,
-  showControls = true,
-}) {
-  return El({
-    element: "div",
-    className: "flex justify-between items-center py-4",
-    children: [
-      El({
-        element: "div",
-        className: "flex gap-3",
-        children: [
-          El({
-            element: "img",
-            src: image,
-            className: "w-16 h-16 object-cover rounded-xl",
-          }),
-          El({
-            element: "div",
-            className: "flex flex-col gap-1",
-            children: [
-              El({
-                element: "h3",
-                className: "text-sm font-medium",
-                children: name,
-              }),
-              El({
-                element: "p",
-                className: "text-gray-400 text-xs",
-                children: size,
-              }),
-              El({
-                element: "p",
-                className: "text-gray-400 text-xs",
-                children: color,
-              }),
-              El({
-                element: "p",
-                className: "font-medium text-sm mt-1",
-                children: `$${price}`,
-              }),
-            ],
-          }),
-        ],
-      }),
-
-      El({
-        element: "div",
-        className: "flex items-center gap-4",
-        children: [
-          El({
-            element: "button",
-            className: "text-lg text-gray-400",
-            children: "−",
-          }),
-          El({
-            element: "span",
-            className: "text-sm",
-            children: "1",
-          }),
-          El({
-            element: "button",
-            className: "text-lg",
-            children: "+",
-          }),
-        ],
-      }),
-    ],
-  });
+function handleShowRemoveModal() {
+  document.getElementById("removeFromCartModal").classList.remove("hidden");
+  console.log("show");
 }
 
-function showRemoveModal(item) {
-  activeItemToRemove = item;
-  const modal = document.getElementById("removeModal");
-  const modalContent = document.getElementById("modalContent");
-  const modalItemDetails = document.getElementById("modalItemDetails");
-
-  // Clear previous content
-  modalItemDetails.innerHTML = "";
-  // Use CartItemDisplay without controls
-  modalItemDetails.appendChild(CartItemDisplay({ ...item }));
-
-  modal.classList.remove("hidden");
-  setTimeout(() => {
-    modalContent.classList.remove("translate-y-full");
-  }, 10);
-}
-
-function hideRemoveModal() {
-  const modal = document.getElementById("removeModal");
-  const modalContent = document.getElementById("modalContent");
-
-  modalContent.classList.add("translate-y-full");
-  setTimeout(() => {
-    modal.classList.add("hidden");
-    activeItemToRemove = null;
-  }, 300);
+function handleHideRemoveModal() {
+  document.getElementById("removeFromCartModal").classList.add("hidden");
 }

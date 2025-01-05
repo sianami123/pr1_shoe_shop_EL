@@ -1,4 +1,4 @@
-import { El } from "../utils/El.js";
+import { El } from "../../../utils/El.js";
 
 export function Search() {
   return El({

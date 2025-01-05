@@ -1,7 +1,7 @@
 import { Header } from "../../components/header.js";
-import { Search } from "../../components/search.js";
+import { Search } from "./components/search.js";
 import { Brands } from "../../components/brands/brands.js";
-import { MostPopular } from "../../components/most_popular.js";
+import { MostPopular } from "./components/most_popular.js";
 import { BottomNav } from "../../components/bottom_nav/bottom_nav.js";
 import { FilterPills } from "../../components/filter_pills.js";
 import { ProductGrid } from "../../components/product_grid.js";
