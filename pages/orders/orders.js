@@ -7,11 +7,13 @@ const orders = document.getElementById("orders");
 const ordersData = [
   {
     name: "Air Jordan 3 Retro",
-    selectedColor: "Black",
+    selectedColor: "black",
     selectedSize: "42",
     selectedQuantity: 1,
     price: "108.00",
-    imageURL: ["./assets/shoe1.jpg"],
+    imageURL: [
+      "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/i1-665455a5-45de-40fb-945f-c1852b82400d/react-infinity-run-flyknit-mens-running-shoe-zX42Nc.jpg",
+    ],
     status: "active",
   },
   {
@@ -211,7 +213,7 @@ function TabBar() {
           El({
             element: "button",
             className: "flex-1 py-4 border-b-2 border-black font-medium",
-            children: "Active",
+            children: ["Active"],
             onclick: () => {
               activeTab = "active";
               updateOrders();
@@ -221,7 +223,7 @@ function TabBar() {
           El({
             element: "button",
             className: "flex-1 py-4 text-gray-400",
-            children: "Completed",
+            children: ["Completed"],
             onclick: () => {
               activeTab = "completed";
               updateOrders();
@@ -249,7 +251,8 @@ function TabBar() {
 
     // Add new orders
     filteredOrders.forEach((order) => {
-      container.appendChild(OrderCard(order));
+      // container.appendChild(OrderCard(order));
+      container.appendChild(CartItem(order));
     });
 
     // Update tab styling
@@ -270,4 +273,133 @@ function TabBar() {
   setTimeout(updateOrders, 0);
 
   return tabContainer;
+}
+
+function CartItem({
+  name,
+  selectedColor,
+  selectedSize,
+  selectedQuantity,
+  price,
+  imageURL,
+  status,
+}) {
+  const colorClass =
+    selectedColor.toLowerCase() === "black"
+      ? "bg-black"
+      : selectedColor.toLowerCase() === "white"
+      ? "bg-white"
+      : selectedColor.toLowerCase() === "gray"
+      ? "bg-gray-100"
+      : selectedColor.toLowerCase() === "red"
+      ? "bg-red-100"
+      : selectedColor.toLowerCase() === "blue"
+      ? "bg-blue-100"
+      : selectedColor.toLowerCase() === "green"
+      ? "bg-green-100"
+      : selectedColor.toLowerCase() === "yellow"
+      ? "bg-yellow-100"
+      : selectedColor.toLowerCase() === "purple"
+      ? "bg-purple-100"
+      : "bg-white";
+  return El({
+    element: "div",
+    className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
+    children: [
+      El({
+        element: "div",
+        className:
+          "rounded-[20px] min-w-[130px] overflow-hidden h-[130px] w-[110px]",
+        children: [
+          El({
+            element: "img",
+            src: imageURL[0],
+            className: "min-w-[130px] h-[160px]",
+            restAttrs: {
+              alt: name,
+            },
+          }),
+        ],
+      }),
+      El({
+        element: "div",
+        className: "flex flex-col justify-between w-full gap-1",
+        children: [
+          El({
+            element: "div",
+            className: "flex items-center justify-cente justify-between",
+            children: [
+              El({
+                element: "h3",
+                className: "font-medium text-[18px]",
+                children: name,
+              }),
+            ],
+          }),
+          El({
+            element: "div",
+            className: "flex justify-start items-center gap-2",
+            children: [
+              El({
+                element: "div",
+                className: `rounded-full w-4 h-4 ${colorClass}`,
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `${selectedColor}`,
+              }),
+              El({
+                element: "div",
+                className: "bg-gray-400 h-[12px] w-[1px]",
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `Size = ${selectedSize}`,
+              }),
+              El({
+                element: "div",
+                className: "bg-gray-400 h-[12px] w-[1px]",
+              }),
+              El({
+                element: "p",
+                className: "text-gray-400 text-[12px]",
+                children: `Qty = ${selectedQuantity}`,
+              }),
+            ],
+          }),
+          El({
+            element: "p",
+            className: "bg-gray-100 w-fit px-2 py-1 rounded-full text-sm",
+            innerText: `${status === "active" ? "In_Delivery" : "Completed"}`,
+          }),
+          El({
+            element: "div",
+            className: "flex items-center justify-between",
+            children: [
+              El({
+                element: "p",
+                className: "text-[20px] font-medium",
+                children: `$${price}`,
+              }),
+              El({
+                element: "div",
+                className: "flex items-center ml-5 gap-3",
+                children: [
+                  El({
+                    element: "button",
+                    className: "bg-black text-white px-4 py-2 rounded-full",
+                    children: [
+                      `${status === "active" ? "Track_Order" : "Buy_Again"}`,
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
 }

@@ -5,8 +5,7 @@ const api_key = "siashoea";
 const accessToken = await getLocalStorage("accessToken");
 
 const LOGIN_URL = `${BASE_URL}/api/users/login`;
-const GET_ALL_PRODUCTS_URL = `${BASE_URL}/api/records/products`;
-const GET_PRODUCT_BY_ID_URL = `${BASE_URL}/api/records/products/`;
+const PRODUCTS_URL = `${BASE_URL}/api/records/products`;
 const CART_URL = `${BASE_URL}/api/records/cart`;
 const WISHLIST_URL = `${BASE_URL}/api/records/wishlist`;
 
@@ -41,16 +40,19 @@ async function addToCartApi({
   }
 }
 
-async function getCartApi() {
+async function getCartApi({ productId }) {
+  let url = CART_URL;
+  if (productId) {
+    url = `${CART_URL}?filterKey=productId&filterValue=${productId}`;
+  }
   try {
-    const response = await fetch(CART_URL, {
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         api_key,
       },
     });
     const data = await response.json();
-    console.log("get cart data:", data);
     return data;
   } catch (error) {
     console.error("Get cart API failed", error);
@@ -101,33 +103,48 @@ async function addToWishlistApi({ productId, ...product }) {
   }
 }
 
-async function getWishlistApi() {
+async function removeFromWishlistApi({ id }) {
+  console.log("remove from wishlist id:", id);
   try {
-    const response = await fetch(WISHLIST_URL);
+    const response = await fetch(`${WISHLIST_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+      method: "DELETE",
+    });
     const data = await response.json();
-    console.log("get wishlist data:", data);
+    return data;
+  } catch (error) {
+    console.error("Remove from wishlist API failed", error);
+  }
+}
+
+async function getWishlistApi({ id }) {
+  let url = WISHLIST_URL;
+  if (id) {
+    url = `${WISHLIST_URL}?filterKey=id&filterValue=${id}`;
+  }
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error("Get wishlist API failed", error);
   }
 }
 
-async function removeFromWishlistApi(id) {
-  try {
-    const response = await fetch(`${WISHLIST_URL}/${id}`, { method: "DELETE" });
-    const data = await response.json();
-    console.log("remove from wishlist data:", data);
-    return data;
-  } catch (error) {
-    console.error("Remove from wishlist API failed", error);
-  }
-}
 //! WISHLIST API END
 //! PRODUCT API START
 async function getAllProductsApi(brand) {
-  let url = GET_ALL_PRODUCTS_URL;
+  let url = PRODUCTS_URL;
   if (brand && brand !== "" && brand.toLowerCase() !== "all") {
-    url = `${GET_ALL_PRODUCTS_URL}?filterKey=brand&filterValue=${brand}`;
+    url = `${PRODUCTS_URL}?filterKey=brand&filterValue=${brand}`;
   }
   try {
     const response = await fetch(url, {
@@ -148,7 +165,7 @@ async function getAllProductsApi(brand) {
 
 async function getProductByIdApi(id) {
   try {
-    const response = await fetch(GET_PRODUCT_BY_ID_URL + id, {
+    const response = await fetch(`${PRODUCTS_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         api_key,
@@ -162,9 +179,9 @@ async function getProductByIdApi(id) {
 }
 
 async function searchProductsApi(searchValue) {
-  let url = GET_ALL_PRODUCTS_URL;
+  let url = PRODUCTS_URL;
   if (searchValue !== "" && searchValue !== null) {
-    url = `${GET_ALL_PRODUCTS_URL}?searchKey=name&searchValue=${searchValue}`;
+    url = `${PRODUCTS_URL}?searchKey=name&searchValue=${searchValue}`;
   }
   try {
     const response = await fetch(url, {

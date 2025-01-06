@@ -1,6 +1,6 @@
-export function getLocalStorage(key) {
+function getLocalStorage(key) {
   try {
-    const value = localStorage.getItem(key);
+    const value = JSON.parse(localStorage.getItem(key));
     if (value) {
       return value;
     } else {
@@ -13,10 +13,12 @@ export function getLocalStorage(key) {
   }
 }
 
-export function setLocalStorage(key, value) {
+function setLocalStorage(key, value) {
   try {
-    localStorage.setItem(key, value);
+    localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error("Set local storage failed", error);
   }
 }
+
+export { getLocalStorage, setLocalStorage };

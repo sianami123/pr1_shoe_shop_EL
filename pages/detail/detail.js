@@ -6,6 +6,9 @@ import {
   addToCartController,
   getProductByIdController,
   addToWishlistController,
+  getCartController,
+  getWishlistController,
+  removeFromWishlistController,
 } from "../../controller/controller.js";
 
 const detail = document.getElementById("detail");
@@ -13,34 +16,53 @@ const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
 
 let detailProduct;
+let cartProduct;
+let isInCart = false;
+let wishlistProduct;
+let isInWishlist = false;
+let wishlistId;
 let quantity = 1;
 let selectedSize = null;
 let selectedColor = null;
 
 const loadingElement = showLoading();
 
-try {
-  detailProduct = await getProductByIdController(id);
-  console.log(detailProduct);
-  hideLoading(loadingElement);
+init();
 
-  if (detailProduct) {
-    detail.appendChild(DetailPage());
-  } else {
+async function init() {
+  detail.innerHTML = "";
+  try {
+    cartProduct = await getCartController({ productId: id });
+    if (cartProduct.records.length > 0) {
+      isInCart = true;
+    }
+
+    wishlistProduct = await getWishlistController({ productId: id });
+    if (wishlistProduct.records.length > 0) {
+      isInWishlist = true;
+      wishlistId = wishlistProduct.records[0].id;
+    }
+
+    detailProduct = await getProductByIdController(id);
     hideLoading(loadingElement);
+
+    if (detailProduct) {
+      detail.appendChild(DetailPage());
+    } else {
+      hideLoading(loadingElement);
+      showToast({
+        message: "Product not found",
+        type: "error",
+      });
+    }
+  } catch (error) {
+    hideLoading(loadingElement);
+    console.error("Error loading product:", error);
     showToast({
-      message: detailProduct.message,
+      message: "Error loading product",
       type: "error",
     });
   }
-} catch (error) {
-  // Hide loading if there's an error
-  hideLoading(loadingElement);
-  console.error("Error loading product:", error);
-  showToast({
-    message: detailProduct.message,
-    type: "error",
-  });
 }
 
 function rerenderDetailPage() {
@@ -133,18 +155,43 @@ function ProductInfo() {
             eventListener: [
               {
                 event: "click",
-                callback: () => {
-                  addToWishlistController({
-                    productId: detailProduct.id,
-                    ...detailProduct,
-                  });
+                callback: async () => {
+                  try {
+                    if (isInWishlist) {
+                      await removeFromWishlistController({
+                        id: wishlistId,
+                      });
+                      console.log("wishlistId:", wishlistId);
+                      isInWishlist = false;
+                      rerenderDetailPage();
+                    } else {
+                      const wishlistId2 = await addToWishlistController({
+                        productId: detailProduct.id,
+                        ...detailProduct,
+                      });
+                      console.log("wishlistId2:", wishlistId2.id);
+                      wishlistId = wishlistId2.id;
+                      isInWishlist = true;
+                      rerenderDetailPage();
+                    }
+                  } catch (error) {
+                    console.error("Error updating wishlist:", error);
+                    showToast({
+                      message: "Failed to update wishlist",
+                      type: "error",
+                    });
+                  }
                 },
               },
             ],
             children: [
               El({
                 element: "img",
-                src: "../../assets/heart.svg",
+                src: `${
+                  isInWishlist
+                    ? "../../assets/heart_red.svg"
+                    : "../../assets/heart.svg"
+                }`,
                 alt: "heart",
                 className: "w-6 h-6",
               }),
@@ -435,7 +482,10 @@ function TotalAndCart() {
                 alt: "cart",
                 className: "w-6 h-6",
               }),
-              "Add to Cart",
+              El({
+                element: "span",
+                innerText: `${isInCart ? "it's in cart" : "Add to Cart"}`,
+              }),
             ],
           }),
         ],

@@ -1,12 +1,14 @@
 import { loginApi } from "./api.js";
-import { setLocalStorage } from "./localStorage.js";
+import { setLocalStorage, getLocalStorage } from "./localStorage.js";
 import {
   getAllProductsApi,
   getProductByIdApi,
   searchProductsApi,
   addToCartApi,
   getCartApi,
+  getWishlistApi,
   addToWishlistApi,
+  removeFromWishlistApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -45,7 +47,6 @@ async function getAllProductsController(brand) {
 async function getProductByIdController(id) {
   try {
     const data = await getProductByIdApi(id);
-    // console.log("detail product controller by id:", data);
     return data;
   } catch (error) {
     console.error("Get product by id controller failed", error);
@@ -92,9 +93,9 @@ async function addToCartController({
   }
 }
 
-async function getCartController() {
+async function getCartController({ productId }) {
   try {
-    const data = await getCartApi();
+    const data = await getCartApi({ productId });
     return data;
   } catch (error) {
     console.error("Get cart controller failed", error);
@@ -105,22 +106,37 @@ async function getCartController() {
 //! CART CONTROLLER END
 //! WISHLIST CONTROLLER START
 async function addToWishlistController({ productId, ...product }) {
-  console.log("add to wishlist controller:", { productId, ...product });
   try {
-    const data = await addToWishlistApi({ productId, ...product });
-    return data;
+    const wishlistData = await addToWishlistApi({ productId, ...product });
+    return wishlistData;
   } catch (error) {
     console.error("Add to wishlist controller failed", error);
     return error;
   }
 }
 
-async function getWishlistController() {
+async function removeFromWishlistController({ id }) {
+  console.log("remove from wishlist controller:", id);
   try {
-    const data = await getWishlistApi();
-    return data;
+    const wishlistData = await removeFromWishlistApi({ id });
+    console.log(
+      "wishlistData in remove from wishlist controller:",
+      wishlistData
+    );
+    return wishlistData;
+  } catch (error) {
+    console.error("Remove from wishlist controller failed", error);
+    return error;
+  }
+}
+
+async function getWishlistController({ productId }) {
+  try {
+    const wishlistData = await getWishlistApi({ productId });
+    return wishlistData;
   } catch (error) {
     console.error("Get wishlist controller failed", error);
+    console.log("wishlistData:", wishlistData);
     return error;
   }
 }
@@ -134,4 +150,5 @@ export {
   getCartController,
   addToWishlistController,
   getWishlistController,
+  removeFromWishlistController,
 };
