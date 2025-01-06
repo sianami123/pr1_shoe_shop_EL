@@ -3,7 +3,7 @@ import { El } from "../utils/El.js";
 export function showToast({ message, type = "error" }) {
   const toast = El({
     element: "div",
-    className: `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${
+    className: `fixed top-4 right-4 p-4 rounded-lg shadow-lg transform transition-transform duration-300 z-50 ${
       type === "error" ? "bg-red-500" : "bg-green-500"
     }`,
     children: [

@@ -10,6 +10,7 @@ import {
   addToWishlistApi,
   removeFromWishlistApi,
   removeFromCartApi,
+  getWishlistByBrandApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -155,6 +156,17 @@ async function getWishlistController({ productId }) {
   }
 }
 
+async function getWishlistByBrandController({ brand }) {
+  console.log("brand in get wishlist by brand controller:", brand);
+  try {
+    const wishlistData = await getWishlistByBrandApi({ brand });
+    return wishlistData;
+  } catch (error) {
+    console.error("Get wishlist by brand controller failed", error);
+    return error;
+  }
+}
+
 //! WISHLIST CONTROLLER END
 export {
   loginController,
@@ -167,4 +179,5 @@ export {
   addToWishlistController,
   getWishlistController,
   removeFromWishlistController,
+  getWishlistByBrandController,
 };

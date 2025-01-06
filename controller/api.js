@@ -145,6 +145,26 @@ async function getWishlistApi({ productId }) {
   }
 }
 
+async function getWishlistByBrandApi({ brand }) {
+  console.log("brand in get wishlist by brand api:", brand);
+  let url = WISHLIST_URL;
+  if (brand) {
+    url = `${WISHLIST_URL}?filterKey=brand&filterValue=${brand}`;
+  }
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Get wishlist by brand API failed", error);
+  }
+}
+
 //! WISHLIST API END
 //! PRODUCT API START
 async function getAllProductsApi(brand) {
@@ -234,4 +254,5 @@ export {
   addToWishlistApi,
   getWishlistApi,
   removeFromWishlistApi,
+  getWishlistByBrandApi,
 };

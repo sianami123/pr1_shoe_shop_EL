@@ -11,6 +11,7 @@ import {
   getWishlistController,
   removeFromWishlistController,
 } from "../../controller/controller.js";
+import { initSwiper } from "./swiper.js";
 
 const detail = document.getElementById("detail");
 const urlParams = new URLSearchParams(window.location.search);
@@ -77,7 +78,7 @@ function rerenderDetailPage() {
 }
 
 function DetailPage() {
-  return El({
+  const element = El({
     element: "div",
     children: [
       BackButton({ text: "Products", backURL: "/home.html" }),
@@ -87,17 +88,26 @@ function DetailPage() {
         className: "container mx-auto max-w-md p-4",
         children: [
           ProductInfo(),
-          El({
-            element: "div",
-            className: "flex justify-between space-x-4 mt-4 mb-6",
-            children: [SizeSelector(), ColorSelector()],
-          }),
-          QuantitySelector(),
+          detailProduct.items_left > 0
+            ? El({
+                element: "div",
+                className: "flex justify-between space-x-4 mt-4 mb-6",
+                children: [SizeSelector(), ColorSelector()],
+              })
+            : null,
+          detailProduct.items_left > 0 ? QuantitySelector() : null,
         ],
       }),
-      TotalAndCart(),
+      detailProduct.items_left > 0 ? TotalAndCart() : null,
     ],
   });
+
+  // Initialize Swiper after a small delay to ensure DOM is ready
+  setTimeout(() => {
+    initSwiper();
+  }, 0);
+
+  return element;
 }
 
 function ProductImageSlider() {
@@ -152,7 +162,7 @@ function ProductInfo() {
         children: [
           El({
             element: "h1",
-            className: "text-2xl font-semibold",
+            className: "text-2xl font-semibold truncate",
             innerText: detailProduct.name,
           }),
           El({
@@ -167,7 +177,10 @@ function ProductInfo() {
                       await removeFromWishlistController({
                         id: wishlistId,
                       });
-                      console.log("wishlistId:", wishlistId);
+                      showToast({
+                        message: "Removed from wishlist",
+                        type: "success",
+                      });
                       isInWishlist = false;
                       rerenderDetailPage();
                     } else {
@@ -175,7 +188,10 @@ function ProductInfo() {
                         productId: detailProduct.id,
                         ...detailProduct,
                       });
-                      console.log("wishlistId2:", wishlistId2.id);
+                      showToast({
+                        message: "Added to wishlist",
+                        type: "success",
+                      });
                       wishlistId = wishlistId2.id;
                       isInWishlist = true;
                       rerenderDetailPage();
@@ -319,6 +335,31 @@ function SizeSelector() {
 }
 
 function ColorSelector() {
+  // Helper function to determine if a color is dark
+  const isColorDark = (color) => {
+    // Convert hex to RGB if color is in hex format
+    let r, g, b;
+    if (color.startsWith("#")) {
+      const hex = color.replace("#", "");
+      r = parseInt(hex.substr(0, 2), 16);
+      g = parseInt(hex.substr(2, 2), 16);
+      b = parseInt(hex.substr(4, 2), 16);
+    } else {
+      // Handle named colors by creating a temporary div
+      const temp = document.createElement("div");
+      temp.style.color = color;
+      document.body.appendChild(temp);
+      const style = window.getComputedStyle(temp);
+      const rgb = style.color.match(/\d+/g);
+      document.body.removeChild(temp);
+      [r, g, b] = rgb.map(Number);
+    }
+
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  };
+
   return El({
     element: "div",
     className: "space-y-3",
@@ -334,7 +375,7 @@ function ColorSelector() {
         children: detailProduct.colors.map((color) =>
           El({
             element: "button",
-            className: `w-8 h-8 rounded-full ${
+            className: `w-8 h-8 rounded-full relative ${
               selectedColor === color
                 ? "border-4 border-black"
                 : "border-2 border-gray-300"
@@ -351,6 +392,22 @@ function ColorSelector() {
                 },
               },
             ],
+            children:
+              selectedColor === color
+                ? [
+                    El({
+                      element: "img",
+                      className:
+                        "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4",
+                      restAttrs: {
+                        src: isColorDark(color)
+                          ? "../../assets/check_white.svg"
+                          : "../../assets/check.svg",
+                        alt: "Selected",
+                      },
+                    }),
+                  ]
+                : [],
           })
         ),
       }),
@@ -476,6 +533,10 @@ function TotalAndCart() {
                       id: cartId,
                     });
                     isInCart = false;
+                    showToast({
+                      message: "Removed from cart",
+                      type: "success",
+                    });
                     rerenderDetailPage();
                   } else {
                     const addedCartId = await addToCartController({
@@ -488,6 +549,10 @@ function TotalAndCart() {
                     isInCart = true;
                     cartId = addedCartId.id;
                     rerenderDetailPage();
+                    showToast({
+                      message: "Added to cart",
+                      type: "success",
+                    });
                   }
                 },
               },
@@ -510,20 +575,3 @@ function TotalAndCart() {
     ],
   });
 }
-
-var swiper = new Swiper(".mySwiper", {
-  spaceBetween: 2,
-  centeredSlides: true,
-  autoplay: {
-    delay: 5000,
-    disableOnInteraction: false,
-  },
-  pagination: {
-    el: ".swiper-pagination",
-    clickable: true,
-  },
-  navigation: {
-    nextEl: ".swiper-button-next",
-    prevEl: ".swiper-button-prev",
-  },
-});
