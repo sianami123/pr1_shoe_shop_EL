@@ -59,9 +59,15 @@ async function getCartApi({ productId }) {
   }
 }
 
-async function removeFromCartApi(id) {
+async function removeFromCartApi({ id }) {
   try {
-    const response = await fetch(`${CART_URL}/${id}`, { method: "DELETE" });
+    const response = await fetch(`${CART_URL}/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
     const data = await response.json();
     console.log("remove from cart data:", data);
     return data;
@@ -120,10 +126,10 @@ async function removeFromWishlistApi({ id }) {
   }
 }
 
-async function getWishlistApi({ id }) {
+async function getWishlistApi({ productId }) {
   let url = WISHLIST_URL;
-  if (id) {
-    url = `${WISHLIST_URL}?filterKey=id&filterValue=${id}`;
+  if (productId) {
+    url = `${WISHLIST_URL}?filterKey=productId&filterValue=${productId}`;
   }
   try {
     const response = await fetch(url, {

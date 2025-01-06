@@ -4,6 +4,7 @@ import { showLoading, hideLoading } from "../../components/loading.js";
 import { showToast } from "../../components/toast.js";
 import {
   addToCartController,
+  removeFromCartController,
   getProductByIdController,
   addToWishlistController,
   getCartController,
@@ -18,6 +19,7 @@ const id = urlParams.get("id");
 let detailProduct;
 let cartProduct;
 let isInCart = false;
+let cartId;
 let wishlistProduct;
 let isInWishlist = false;
 let wishlistId;
@@ -35,9 +37,13 @@ async function init() {
     cartProduct = await getCartController({ productId: id });
     if (cartProduct.records.length > 0) {
       isInCart = true;
+      cartId = cartProduct.records[0].id;
     }
 
     wishlistProduct = await getWishlistController({ productId: id });
+    console.log("wishlistProduct:", wishlistProduct.records);
+    console.log("wishlistProduct:", wishlistProduct.records.length);
+
     if (wishlistProduct.records.length > 0) {
       isInWishlist = true;
       wishlistId = wishlistProduct.records[0].id;
@@ -449,29 +455,40 @@ function TotalAndCart() {
           El({
             element: "button",
             className: `w-[250px] bg-black text-white px-3 py-2 rounded-full flex items-center justify-center gap-2 ${
-              !selectedSize || !selectedColor
+              !isInCart && (!selectedSize || !selectedColor)
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`,
-            disabled: !selectedSize || !selectedColor,
+            disabled: !isInCart && (!selectedSize || !selectedColor),
             eventListener: [
               {
                 event: "click",
-                callback: () => {
-                  if (!selectedSize || !selectedColor) {
+                callback: async () => {
+                  if (!isInCart && (!selectedSize || !selectedColor)) {
                     showToast({
                       message: "Please select size and color",
                       type: "error",
                     });
                     return;
                   }
-                  addToCartController({
-                    ...detailProduct,
-                    selectedColor,
-                    selectedSize,
-                    productId: detailProduct.id,
-                    selectedQuantity: quantity,
-                  });
+                  if (isInCart) {
+                    await removeFromCartController({
+                      id: cartId,
+                    });
+                    isInCart = false;
+                    rerenderDetailPage();
+                  } else {
+                    const addedCartId = await addToCartController({
+                      ...detailProduct,
+                      selectedColor,
+                      selectedSize,
+                      productId: detailProduct.id,
+                      selectedQuantity: quantity,
+                    });
+                    isInCart = true;
+                    cartId = addedCartId.id;
+                    rerenderDetailPage();
+                  }
                 },
               },
             ],
@@ -484,7 +501,7 @@ function TotalAndCart() {
               }),
               El({
                 element: "span",
-                innerText: `${isInCart ? "it's in cart" : "Add to Cart"}`,
+                innerText: `${isInCart ? "Remove from cart" : "Add to Cart"}`,
               }),
             ],
           }),

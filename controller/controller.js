@@ -9,6 +9,7 @@ import {
   getWishlistApi,
   addToWishlistApi,
   removeFromWishlistApi,
+  removeFromCartApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -86,9 +87,21 @@ async function addToCartController({
       productId,
       ...product,
     });
+    console.log("data in add to cart controller:", data);
     return data;
   } catch (error) {
     console.error("Add to cart controller failed", error);
+    return error;
+  }
+}
+
+async function removeFromCartController({ id }) {
+  try {
+    const data = await removeFromCartApi({ id });
+    console.log("data in remove from cart controller:", data);
+    return data;
+  } catch (error) {
+    console.error("Remove from cart controller failed", error);
     return error;
   }
 }
@@ -131,6 +144,7 @@ async function removeFromWishlistController({ id }) {
 }
 
 async function getWishlistController({ productId }) {
+  console.log("id in get wishlist controller:", productId);
   try {
     const wishlistData = await getWishlistApi({ productId });
     return wishlistData;
@@ -140,6 +154,7 @@ async function getWishlistController({ productId }) {
     return error;
   }
 }
+
 //! WISHLIST CONTROLLER END
 export {
   loginController,
@@ -148,6 +163,7 @@ export {
   searchProductsController,
   addToCartController,
   getCartController,
+  removeFromCartController,
   addToWishlistController,
   getWishlistController,
   removeFromWishlistController,
