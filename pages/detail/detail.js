@@ -540,7 +540,6 @@ function TotalAndCart() {
                     rerenderDetailPage();
                   } else {
                     const addedCartId = await addToCartController({
-                      ...detailProduct,
                       selectedColor,
                       selectedSize,
                       productId: detailProduct.id,

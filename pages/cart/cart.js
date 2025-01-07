@@ -1,29 +1,64 @@
 import { El } from "../../utils/El.js";
 import { BottomNav } from "../../components/bottom_nav/bottom_nav.js";
-import { getCartController } from "../../controller/controller.js";
+import {
+  getCartController,
+  removeFromCartController,
+  getFilteredProductsIdsController,
+  updateCartQuantityController,
+} from "../../controller/controller.js";
+import { showToast } from "../../components/toast.js";
 const cart = document.getElementById("cart");
 
 init();
 
-let activeItemToRemove = null;
 let cartProducts;
+let mergedProducts;
+
 async function init() {
   try {
-    const cartProducts = await getCartController({});
-    console.log("cartProducts:", cartProducts.records);
+    cartProducts = await getCartController({});
+    const productIds = cartProducts.records.map((product) => product.productId);
+    const filteredProducts = await getFilteredProductsIdsController(productIds);
+
+    mergedProducts = cartProducts.records.map((cartItem) => {
+      const productDetails = filteredProducts.records.find(
+        (product) => product.id === cartItem.productId
+      );
+      return {
+        ...productDetails,
+        selectedQuantity: cartItem.selectedQuantity,
+        selectedSize: cartItem.selectedSize,
+        selectedColor: cartItem.selectedColor,
+        cartId: cartItem.id,
+      };
+    });
+
     if (cartProducts.records.length > 0) {
       cart.innerHTML = "";
       cart.append(
         CartHeader(),
-        CartItems({ cartProducts: cartProducts.records }),
+        CartItems({ cartProducts: mergedProducts }),
         CartFooter(),
         BottomNav()
       );
       document.body.appendChild(RemoveFromCartModal());
+
+      calculateAndUpdatePrices();
+    } else if (cartProducts.records.length === 0) {
+      cart.innerHTML = "";
+      cart.append(CartHeader(), CartEmpty(), BottomNav());
     }
   } catch (error) {
     console.log("init cart failed", error);
   }
+}
+
+function CartEmpty() {
+  return El({
+    element: "div",
+    className: "flex flex-col items-center justify-center h-full",
+    children: ["Your cart is empty"],
+  });
 }
 
 function CartHeader() {
@@ -51,6 +86,7 @@ function CartHeader() {
 }
 
 function CartItems({ cartProducts }) {
+  console.log("cartProducts:", cartProducts);
   return El({
     element: "div",
     className: "px-4 flex flex-col gap-4 py-4 bg-gray-50",
@@ -62,16 +98,31 @@ function CartItems({ cartProducts }) {
         size: product.selectedSize,
         color: product.selectedColor,
         quantity: product.selectedQuantity,
-        id: product.id,
+        productId: product.productId,
+        cartId: product.cartId,
+        itemsLeft: product.items_left,
       })
     ),
   });
 }
 
-function CartItem({ name, price, color, size, image, quantity, id }) {
+function CartItem({
+  name,
+  price,
+  color,
+  size,
+  image,
+  quantity,
+  productId,
+  cartId,
+  itemsLeft,
+}) {
+  console.log("itemsLeft:", itemsLeft);
   const colorClass =
-    color === "black"
+    color.toLowerCase() === "black"
       ? "bg-black"
+      : color.toLowerCase() === "brown"
+      ? "bg-brown-500"
       : color.toLowerCase() === "white"
       ? "bg-white"
       : color.toLowerCase() === "gray"
@@ -87,7 +138,6 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
       : color.toLowerCase() === "purple"
       ? "bg-purple-500"
       : "bg-white";
-  console.log("colorClass:", colorClass);
   return El({
     element: "div",
     className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
@@ -126,15 +176,25 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
                   {
                     event: "click",
                     callback: () => {
-                      handleShowRemoveModal({
-                        name,
-                        price,
-                        color,
-                        size,
-                        image,
-                        quantity,
-                        id,
-                      });
+                      const oldModal = document.getElementById(
+                        "removeFromCartModal"
+                      );
+                      if (oldModal) oldModal.remove();
+                      document.body.appendChild(
+                        RemoveFromCartModal({
+                          name,
+                          price,
+                          color,
+                          size,
+                          image,
+                          quantity,
+                          productId,
+                          cartId,
+                        })
+                      );
+                      document
+                        .getElementById("removeFromCartModal")
+                        .classList.remove("hidden");
                     },
                   },
                 ],
@@ -182,8 +242,10 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
               El({
                 element: "p",
                 className: "text-[20px] font-medium",
-                children: `$${price}`,
+                id: `price-${cartId}`,
+                innerHTML: `$${price}`,
               }),
+              //! Quantity /////////
               El({
                 element: "div",
                 className: "flex items-center ml-5 gap-3",
@@ -203,7 +265,17 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
                           {
                             event: "click",
                             callback: () => {
-                              quantity -= 1;
+                              const quantityNumber = parseInt(
+                                document.getElementById(`quantity-${cartId}`)
+                                  .innerHTML
+                              );
+                              if (quantityNumber > 1) {
+                                handleIncreaseDecreaseQuantity(
+                                  cartId,
+                                  "decrease",
+                                  price
+                                );
+                              }
                             },
                           },
                         ],
@@ -212,7 +284,7 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
                         element: "p",
                         className:
                           "bg-black w-full bg-opacity-0 text-center outline-none text-[17px]",
-                        id: `quantity-${id}`,
+                        id: `quantity-${cartId}`,
                         innerHTML: `${quantity}`,
                       }),
                       El({
@@ -225,7 +297,17 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
                           {
                             event: "click",
                             callback: () => {
-                              quantity += 1;
+                              const quantityNumber = parseInt(
+                                document.getElementById(`quantity-${cartId}`)
+                                  .innerHTML
+                              );
+                              if (quantityNumber < itemsLeft) {
+                                handleIncreaseDecreaseQuantity(
+                                  cartId,
+                                  "increase",
+                                  price
+                                );
+                              }
                             },
                           },
                         ],
@@ -243,6 +325,7 @@ function CartItem({ name, price, color, size, image, quantity, id }) {
 }
 
 function CartFooter() {
+  let totalPrice;
   return El({
     element: "div",
     className:
@@ -260,7 +343,8 @@ function CartFooter() {
           El({
             element: "span",
             className: "font-bold text-xl",
-            children: "$558.00",
+            id: "totalPriceId",
+            innerHTML: `$${totalPrice || 0}`,
           }),
         ],
       }),
@@ -281,25 +365,34 @@ function CartFooter() {
   });
 }
 
-function RemoveFromCartModal() {
-  console.log("activeItemToRemove:", activeItemToRemove);
-
-  let quantity = activeItemToRemove?.quantity || 1;
-
-  const updateQuantity = async (newQuantity) => {
-    try {
-      if (newQuantity < 1) return;
-
-      quantity = newQuantity;
-      activeItemToRemove.quantity = newQuantity;
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      showToast({
-        message: "Failed to update quantity",
-        type: "error",
-      });
-    }
-  };
+function RemoveFromCartModal({
+  name,
+  price,
+  color,
+  size,
+  image,
+  quantity,
+  productId,
+  cartId,
+}) {
+  const colorClass =
+    color === "black"
+      ? "bg-black"
+      : color.toLowerCase() === "white"
+      ? "bg-white"
+      : color.toLowerCase() === "gray"
+      ? "bg-gray-100"
+      : color.toLowerCase() === "red"
+      ? "bg-red-500"
+      : color.toLowerCase() === "blue"
+      ? "bg-blue-500"
+      : color.toLowerCase() === "green"
+      ? "bg-green-500"
+      : color.toLowerCase() === "yellow"
+      ? "bg-yellow-500"
+      : color.toLowerCase() === "purple"
+      ? "bg-purple-500"
+      : "bg-white";
 
   return El({
     element: "div",
@@ -331,7 +424,7 @@ function RemoveFromCartModal() {
             element: "div",
             className:
               "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px] w-full",
-            children: activeItemToRemove
+            children: name
               ? [
                   El({
                     element: "div",
@@ -340,11 +433,10 @@ function RemoveFromCartModal() {
                     children: [
                       El({
                         element: "img",
-                        src:
-                          activeItemToRemove.image || "./assets/shoe_card.png",
+                        src: `${image}`,
                         className: "min-w-[130px] h-[160px] object-cover",
                         restAttrs: {
-                          alt: activeItemToRemove.name,
+                          alt: name,
                         },
                       }),
                     ],
@@ -356,20 +448,20 @@ function RemoveFromCartModal() {
                       El({
                         element: "h3",
                         className: "font-medium text-[18px]",
-                        children: [activeItemToRemove.name],
+                        children: [name],
                       }),
                       El({
                         element: "div",
-                        className: "flex justify-start items-center gap-2",
+                        className: "flex justify-start items-start gap-2",
                         children: [
                           El({
                             element: "div",
-                            className: `rounded-full w-4 h-4 bg-${activeItemToRemove.color.toLowerCase()}`,
+                            className: `rounded-full w-4 h-4 ${colorClass}`,
                           }),
                           El({
                             element: "p",
                             className: "text-gray-400 text-[12px]",
-                            children: [activeItemToRemove.color],
+                            children: [color],
                           }),
                           El({
                             element: "div",
@@ -378,7 +470,7 @@ function RemoveFromCartModal() {
                           El({
                             element: "p",
                             className: "text-gray-400 text-[12px]",
-                            children: [`Size = ${activeItemToRemove.size}`],
+                            children: [`Size = ${size}`],
                           }),
                         ],
                       }),
@@ -389,73 +481,7 @@ function RemoveFromCartModal() {
                           El({
                             element: "p",
                             className: "text-[20px] font-medium",
-                            children: [`$${activeItemToRemove.price}`],
-                          }),
-                          El({
-                            element: "div",
-                            className: "flex items-center gap-3",
-                            children: [
-                              El({
-                                element: "div",
-                                className:
-                                  "flex bg-[#ececed] justify-between w-[90px] rounded-[30px]",
-                                children: [
-                                  El({
-                                    element: "button",
-                                    className:
-                                      "rounded-[30px] font-medium text-[17px] py-1 pl-4",
-                                    children: ["-"],
-                                    eventListener: [
-                                      {
-                                        event: "click",
-                                        callback: () => {},
-                                      },
-                                    ],
-                                  }),
-                                  El({
-                                    element: "p",
-                                    className:
-                                      "bg-transparent text-center w-8 flex items-center justify-center text-[17px]",
-                                    id: `remove-quantity-${activeItemToRemove.id}`,
-                                    innerHTML: `${activeItemToRemove.quantity}`,
-                                  }),
-                                  El({
-                                    element: "button",
-                                    className:
-                                      "rounded-[30px] font-medium text-[17px] py-1 pr-4",
-                                    children: ["+"],
-                                    eventListener: [
-                                      {
-                                        event: "click",
-                                        callback: () => {
-                                          const quantityElement =
-                                            document.getElementById(
-                                              `quantity-${activeItemToRemove.id}`
-                                            );
-                                          const removeQuantityElement =
-                                            document.getElementById(
-                                              `remove-quantity-${activeItemToRemove.id}`
-                                            );
-                                          const currentQuantity = parseInt(
-                                            quantityElement.innerHTML
-                                          );
-                                          quantityElement.innerHTML =
-                                            currentQuantity + 1;
-                                          removeQuantityElement.innerHTML =
-                                            currentQuantity + 1;
-                                          activeItemToRemove.quantity =
-                                            currentQuantity + 1;
-                                          console.log(
-                                            "quantityElement.innerHTML:",
-                                            quantityElement.innerHTML
-                                          );
-                                        },
-                                      },
-                                    ],
-                                  }),
-                                ],
-                              }),
-                            ],
+                            children: [`$${price}`],
                           }),
                         ],
                       }),
@@ -481,7 +507,9 @@ function RemoveFromCartModal() {
                 eventListener: [
                   {
                     event: "click",
-                    callback: () => handleHideRemoveModal(),
+                    callback: () => {
+                      handleHideRemoveModal();
+                    },
                   },
                 ],
               }),
@@ -495,9 +523,11 @@ function RemoveFromCartModal() {
                     event: "click",
                     callback: async () => {
                       try {
-                        if (activeItemToRemove?.id) {
+                        if (cartId) {
+                          console.log("cartId:", cartId);
+                          console.log("productId:", productId);
                           await removeFromCartController({
-                            id: activeItemToRemove.id,
+                            id: cartId,
                           });
                           handleHideRemoveModal();
                           init();
@@ -521,15 +551,65 @@ function RemoveFromCartModal() {
   });
 }
 
-function handleHideRemoveModal() {
-  document.getElementById("removeFromCartModal").classList.add("hidden");
-  activeItemToRemove = null;
+function calculateAndUpdatePrices() {
+  const allPriceElements = document.querySelectorAll('[id^="price-"]');
+  let totalPrice = 0;
+
+  allPriceElements.forEach((priceElement) => {
+    const id = priceElement.id.replace("price-", "");
+    const quantityElement = document.getElementById(`quantity-${id}`);
+
+    if (quantityElement) {
+      const quantity = parseInt(quantityElement.innerHTML);
+
+      const product = mergedProducts.find((p) => p.cartId === id);
+
+      if (product) {
+        console.log("product:", product);
+        const productPrice = product.price * quantity;
+        console.log("productPrice:", productPrice);
+        priceElement.innerHTML = `$${productPrice}`;
+        totalPrice += productPrice;
+      }
+    }
+  });
+
+  const totalPriceElement = document.getElementById("totalPriceId");
+  if (totalPriceElement) {
+    totalPriceElement.innerHTML = `$${totalPrice}`;
+  }
 }
 
-function handleShowRemoveModal(item) {
-  activeItemToRemove = item;
-  const oldModal = document.getElementById("removeFromCartModal");
-  if (oldModal) oldModal.remove();
-  document.body.appendChild(RemoveFromCartModal());
-  document.getElementById("removeFromCartModal").classList.remove("hidden");
+async function handleIncreaseDecreaseQuantity(cartId, type) {
+  const quantityElement = document.getElementById(`quantity-${cartId}`);
+  let quantity = parseInt(quantityElement.innerHTML);
+  if (type === "increase") {
+    quantity += 1;
+  } else {
+    quantity -= 1;
+  }
+  quantityElement.innerHTML = quantity;
+
+  const matchedProduct = cartProducts.records.find(
+    (product) => product.id === cartId
+  );
+
+  if (matchedProduct) {
+    matchedProduct.selectedQuantity = quantity;
+    await updateCartQuantityController({
+      cartId,
+      changedQuantity: quantity,
+    });
+  }
+
+  calculateAndUpdatePrices();
+}
+
+function handleHideRemoveModal() {
+  document.getElementById("removeFromCartModal").classList.add("hidden");
+  init();
+}
+
+function handleCheckout() {
+  console.log("checkout");
 }

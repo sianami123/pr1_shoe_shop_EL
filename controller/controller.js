@@ -11,6 +11,8 @@ import {
   removeFromWishlistApi,
   removeFromCartApi,
   getWishlistByBrandApi,
+  getFilteredProductsIdsApi,
+  updateCartQuantityApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -31,6 +33,16 @@ async function loginController({ email, password }) {
 }
 //! LOGIN CONTROLLER END
 //! PRODUCT CONTROLLER START
+async function getFilteredProductsIdsController(productIds) {
+  try {
+    const data = await getFilteredProductsIdsApi(productIds);
+    return data;
+  } catch (error) {
+    console.error("Get filtered products ids controller failed", error);
+    return error;
+  }
+}
+
 async function getAllProductsController(brand) {
   try {
     const data = await getAllProductsApi(brand);
@@ -66,6 +78,17 @@ async function searchProductsController(searchValue) {
 }
 //! PRODUCT CONTROLLER END
 //! CART CONTROLLER START
+
+async function updateCartQuantityController({ cartId, changedQuantity }) {
+  try {
+    const data = await updateCartQuantityApi({ cartId, changedQuantity });
+    return data;
+  } catch (error) {
+    console.error("Update cart quantity controller failed", error);
+    return error;
+  }
+}
+
 async function addToCartController({
   selectedQuantity,
   selectedSize,
@@ -180,4 +203,6 @@ export {
   getWishlistController,
   removeFromWishlistController,
   getWishlistByBrandController,
+  getFilteredProductsIdsController,
+  updateCartQuantityController,
 };

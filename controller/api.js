@@ -76,11 +76,16 @@ async function removeFromCartApi({ id }) {
   }
 }
 
-async function updateCartQuantityApi(id, quantity) {
+async function updateCartQuantityApi({ cartId, changedQuantity }) {
   try {
-    const response = await fetch(`${CART_URL}/${id}`, {
+    const response = await fetch(`${CART_URL}/${cartId}`, {
       method: "PUT",
-      body: JSON.stringify({ quantity }),
+      body: JSON.stringify({ selectedQuantity: changedQuantity }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
     });
     const data = await response.json();
     console.log("update cart quantity data:", data);
@@ -189,6 +194,27 @@ async function getAllProductsApi(brand) {
   }
 }
 
+async function getFilteredProductsIdsApi(productIds) {
+  let url = PRODUCTS_URL;
+  if (productIds && productIds.length > 0) {
+    const filterValues = productIds.map((id) => `filterValue=${id}`).join("&");
+    url = `${PRODUCTS_URL}?filterKey=id&${filterValues}`;
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Get filtered products IDs API failed", error);
+  }
+}
+
 async function getProductByIdApi(id) {
   try {
     const response = await fetch(`${PRODUCTS_URL}/${id}`, {
@@ -255,4 +281,5 @@ export {
   getWishlistApi,
   removeFromWishlistApi,
   getWishlistByBrandApi,
+  getFilteredProductsIdsApi,
 };

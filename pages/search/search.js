@@ -3,10 +3,6 @@ import { BackButton } from "../../components/ui/back_button.js";
 import { El } from "../../utils/El.js";
 import { searchProductsController } from "../../controller/controller.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
-import {
-  getLocalStorage,
-  setLocalStorage,
-} from "../../controller/localStorage.js";
 const searchDOM = document.getElementById("search");
 
 searchDOM.append(
@@ -210,6 +206,7 @@ async function handleInputFocus() {
   const searchHistory = JSON.parse(
     localStorage.getItem("searchHistory") || "[]"
   );
+  console.log("searchHistory in handleInputFocus:", searchHistory);
   //  remove hidden class from history modal
   const historyModal = document.getElementById("history-modal");
   historyModal.classList.remove("hidden");
@@ -226,7 +223,7 @@ async function handleSearch(searchValue) {
     }
 
     const searchResults = await searchProductsController(searchValue);
-    if (searchResults.records.length) {
+    if (searchResults.records.length && searchResults.records.length > 0) {
       let searchHistory = JSON.parse(
         localStorage.getItem("searchHistory") || "[]"
       );
@@ -334,13 +331,12 @@ function SearchResults(searchResults, searchValue) {
   });
 }
 
-function removeFromHistory(searchValue) {
+function handleRemoveFromHistory(searchValue) {
   let searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
   searchHistory = searchHistory.filter((item) => item !== searchValue);
   localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
 }
 
-// Add this function to clear all history
-function clearSearchHistory() {
+function handleClearAllSearchHistory() {
   localStorage.removeItem("searchHistory");
 }
