@@ -16,7 +16,7 @@ const brandsParam = (urlParams.get("brands") || "all").toLowerCase();
 export function FilterPills({ url }) {
   return El({
     element: "div",
-    className: "flex gap-2 mb-4 py-2 overflow-x-auto",
+    className: "flex gap-2 mb-4 py-2 px-4 overflow-x-auto",
     children: pills.map((pill) =>
       Pill({
         ...pill,

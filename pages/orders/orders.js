@@ -3,70 +3,20 @@ import { BottomNav } from "../../components/bottom_nav/bottom_nav.js";
 import { getOrdersController } from "../../controller/controller.js";
 
 const orders = document.getElementById("orders");
-
+let ordersData;
 ordersInit();
 
 async function ordersInit() {
   try {
-    const ordersData = await getOrdersController();
-    console.log(ordersData.records);
+    ordersData = await getOrdersController();
+    ordersData = ordersData.records;
+    orders.appendChild(OrdersPage());
   } catch (error) {
     console.error("Orders init failed", error);
   }
 }
 
 // Sample data
-const ordersData = [
-  {
-    name: "Air Jordan 3 Retro",
-    selectedColor: "black",
-    selectedSize: "42",
-    selectedQuantity: 1,
-    price: "108.00",
-    imageURL: [
-      "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/i1-665455a5-45de-40fb-945f-c1852b82400d/react-infinity-run-flyknit-mens-running-shoe-zX42Nc.jpg",
-    ],
-    status: "active",
-  },
-  {
-    name: "Running Sportwear",
-    selectedColor: "Black",
-    selectedSize: "42",
-    selectedQuantity: 1,
-    price: "140.00",
-    imageURL: ["./assets/shoe2.jpg"],
-    status: "active",
-  },
-  {
-    name: "New Balance 996 V2",
-    selectedColor: "Black",
-    selectedSize: "42",
-    selectedQuantity: 1,
-    price: "122.00",
-    imageURL: ["./assets/shoe3.jpg"],
-    status: "completed",
-  },
-  {
-    name: "Fila Running Sneakers",
-    selectedColor: "Black",
-    selectedSize: "42",
-    selectedQuantity: 1,
-    price: "85.00",
-    imageURL: ["./assets/shoe4.jpg"],
-    status: "completed",
-  },
-  {
-    name: "Fila Running Sneakers",
-    selectedColor: "Black",
-    selectedSize: "42",
-    selectedQuantity: 1,
-    price: "85.00",
-    imageURL: ["./assets/shoe4.jpg"],
-    status: "completed",
-  },
-];
-
-orders.appendChild(OrdersPage());
 
 function OrdersPage() {
   return El({
@@ -256,15 +206,17 @@ function TabBar() {
   function updateOrders() {
     const container = tabContainer.querySelector("#orders-container");
     container.innerHTML = ""; // Clear current orders
-
+    console.log("ordersData:", ordersData);
     const filteredOrders = ordersData.filter(
       (order) => order.status === activeTab
     );
+    console.log("ordersData:", ordersData);
+    console.log("filteredOrders:", filteredOrders);
 
     // Add new orders
     filteredOrders.forEach((order) => {
       // container.appendChild(OrderCard(order));
-      container.appendChild(CartItem(order));
+      container.appendChild(OrderItem(order));
     });
 
     // Update tab styling
@@ -287,124 +239,266 @@ function TabBar() {
   return tabContainer;
 }
 
-function CartItem({
-  name,
-  selectedColor,
-  selectedSize,
-  selectedQuantity,
-  price,
-  imageURL,
+function OrderItem({
+  createdAt,
   status,
+  ship_address,
+  ship_type,
+  totalPriceDiscount,
+  products,
 }) {
-  const colorClass =
-    selectedColor.toLowerCase() === "black"
-      ? "bg-black"
-      : selectedColor.toLowerCase() === "white"
-      ? "bg-white"
-      : selectedColor.toLowerCase() === "gray"
-      ? "bg-gray-100"
-      : selectedColor.toLowerCase() === "red"
-      ? "bg-red-100"
-      : selectedColor.toLowerCase() === "blue"
-      ? "bg-blue-100"
-      : selectedColor.toLowerCase() === "green"
-      ? "bg-green-100"
-      : selectedColor.toLowerCase() === "yellow"
-      ? "bg-yellow-100"
-      : selectedColor.toLowerCase() === "purple"
-      ? "bg-purple-100"
-      : "bg-white";
+  const date = new Date(createdAt);
+  const formattedDate = date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return El({
     element: "div",
-    className: "shadow-xl flex items-center gap-4 p-5 bg-white rounded-[35px]",
+    className:
+      "flex flex-col gap-2 bg-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer",
+    onclick: () =>
+      showOrderModal({
+        createdAt: formattedDate,
+        status,
+        ship_address,
+        ship_type,
+        totalPriceDiscount,
+        products,
+      }),
+    children: [
+      // Header with Order ID, Date, and Status
+      El({
+        element: "div",
+        className: "flex justify-between items-center mb-3",
+        children: [
+          El({
+            element: "div",
+            className: "flex items-center gap-2",
+            children: [
+              El({
+                element: "span",
+                className: "text-sm text-gray-500",
+                children: formattedDate,
+              }),
+              El({
+                element: "span",
+                className: `px-2 py-1 rounded-full text-xs ${
+                  status === "active"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-green-100 text-green-700"
+                }`,
+                children: status === "active" ? "active" : "completed",
+              }),
+            ],
+          }),
+          El({
+            element: "span",
+            className: "font-semibold text-lg",
+            children: `$${totalPriceDiscount}`,
+          }),
+        ],
+      }),
+      // Products Preview
+      El({
+        element: "div",
+        className: "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+        children: products.map((product) =>
+          El({
+            element: "div",
+            className: "flex-shrink-0 relative",
+            children: [
+              El({
+                element: "img",
+                src: product.image,
+                className: "w-20 h-20 object-cover rounded-lg",
+              }),
+              El({
+                element: "div",
+                className:
+                  "absolute bottom-0 right-0 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded-tl-lg",
+                children: `x${product.quantity}`,
+              }),
+            ],
+          })
+        ),
+      }),
+      // Footer with Shipping Info
+      El({
+        element: "div",
+        className:
+          "flex items-center justify-between mt-2 pt-2 border-t border-gray-100",
+        children: [
+          El({
+            element: "div",
+            className: "flex items-center gap-1 text-sm text-gray-500",
+            children: [
+              El({
+                element: "img",
+                src: "./pages/orders/assets/truck.svg",
+                className: "w-6 h-6",
+              }),
+              El({
+                element: "span",
+                children: ship_type,
+              }),
+            ],
+          }),
+          El({
+            element: "button",
+            className: "text-sm text-blue-600 font-medium hover:text-blue-700",
+            children: "View Details →",
+          }),
+        ],
+      }),
+    ],
+  });
+}
+
+function OrderModal({
+  createdAt,
+  status,
+  ship_address,
+  ship_type,
+  totalPriceDiscount,
+  products,
+}) {
+  return El({
+    element: "div",
+    className:
+      "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50",
+    onclick: (e) => {
+      if (e.target === e.currentTarget) {
+        e.currentTarget.remove();
+      }
+    },
     children: [
       El({
         element: "div",
         className:
-          "rounded-[20px] min-w-[130px] overflow-hidden h-[130px] w-[110px]",
+          "bg-white rounded-2xl p-6 w-[90%] max-w-lg max-h-[90vh] overflow-y-auto",
         children: [
-          El({
-            element: "img",
-            src: imageURL[0],
-            className: "min-w-[130px] h-[160px]",
-            restAttrs: {
-              alt: name,
-            },
-          }),
-        ],
-      }),
-      El({
-        element: "div",
-        className: "flex flex-col justify-between w-full gap-1",
-        children: [
+          // Header with close button
           El({
             element: "div",
-            className: "flex items-center justify-cente justify-between",
+            className: "flex justify-between items-center mb-4",
             children: [
               El({
-                element: "h3",
-                className: "font-medium text-[18px]",
-                children: name,
+                element: "h2",
+                className: "text-xl font-semibold",
+                children: "Order Details",
+              }),
+              El({
+                element: "button",
+                className: "text-gray-500 hover:text-gray-700",
+                onclick: (e) => {
+                  e.stopPropagation();
+                  e.currentTarget.closest(".fixed").remove();
+                },
+                children: "✕",
               }),
             ],
           }),
+          // Order info
           El({
             element: "div",
-            className: "flex justify-start items-center gap-2",
+            className: "space-y-4",
             children: [
+              // Date and Status
               El({
                 element: "div",
-                className: `rounded-full w-4 h-4 ${colorClass}`,
-              }),
-              El({
-                element: "p",
-                className: "text-gray-400 text-[12px]",
-                children: `${selectedColor}`,
-              }),
-              El({
-                element: "div",
-                className: "bg-gray-400 h-[12px] w-[1px]",
-              }),
-              El({
-                element: "p",
-                className: "text-gray-400 text-[12px]",
-                children: `Size = ${selectedSize}`,
-              }),
-              El({
-                element: "div",
-                className: "bg-gray-400 h-[12px] w-[1px]",
-              }),
-              El({
-                element: "p",
-                className: "text-gray-400 text-[12px]",
-                children: `Qty = ${selectedQuantity}`,
-              }),
-            ],
-          }),
-          El({
-            element: "p",
-            className: "bg-gray-100 w-fit px-2 py-1 rounded-full text-sm",
-            innerText: `${status === "active" ? "In_Delivery" : "Completed"}`,
-          }),
-          El({
-            element: "div",
-            className: "flex items-center justify-between",
-            children: [
-              El({
-                element: "p",
-                className: "text-[20px] font-medium",
-                children: `$${price}`,
-              }),
-              El({
-                element: "div",
-                className: "flex items-center ml-5 gap-3",
+                className: "flex justify-between",
                 children: [
                   El({
-                    element: "button",
-                    className: "bg-black text-white px-4 py-2 rounded-full",
-                    children: [
-                      `${status === "active" ? "Track_Order" : "Buy_Again"}`,
-                    ],
+                    element: "p",
+                    className: "text-gray-600",
+                    children: `Date: ${createdAt}`,
+                  }),
+                  El({
+                    element: "span",
+                    className: "px-2 py-1 bg-gray-100 rounded-full text-sm",
+                    children: status,
+                  }),
+                ],
+              }),
+              // Shipping Details
+              El({
+                element: "div",
+                className: "border-t pt-4",
+                children: [
+                  El({
+                    element: "h3",
+                    className: "font-medium mb-2",
+                    children: "Shipping Details",
+                  }),
+                  El({
+                    element: "p",
+                    className: "text-gray-600",
+                    children: `Address: ${ship_address}`,
+                  }),
+                  El({
+                    element: "p",
+                    className: "text-gray-600",
+                    children: `Method: ${ship_type}`,
+                  }),
+                ],
+              }),
+              // Products List
+              El({
+                element: "div",
+                className: "border-t pt-4",
+                children: [
+                  El({
+                    element: "h3",
+                    className: "font-medium mb-2",
+                    children: "Products",
+                  }),
+                  ...products.map((product) =>
+                    El({
+                      element: "div",
+                      className: "flex gap-4 py-2 border-b last:border-b-0",
+                      children: [
+                        El({
+                          element: "img",
+                          src: product.image,
+                          className: "w-20 h-20 object-cover rounded-lg",
+                        }),
+                        El({
+                          element: "div",
+                          className: "flex-1",
+                          children: [
+                            El({
+                              element: "h4",
+                              className: "font-medium",
+                              children: product.name,
+                            }),
+                            El({
+                              element: "p",
+                              className: "text-gray-600 text-sm",
+                              children: `Quantity: ${product.quantity}`,
+                            }),
+                            El({
+                              element: "p",
+                              className: "text-gray-600 text-sm",
+                              children: `$${product.price}`,
+                            }),
+                          ],
+                        }),
+                      ],
+                    })
+                  ),
+                ],
+              }),
+              // Total
+              El({
+                element: "div",
+                className: "border-t pt-4 text-right",
+                children: [
+                  El({
+                    element: "p",
+                    className: "font-medium text-lg",
+                    children: `Total: $${totalPriceDiscount}`,
                   }),
                 ],
               }),
@@ -414,4 +508,8 @@ function CartItem({
       }),
     ],
   });
+}
+
+function showOrderModal(orderData) {
+  document.body.appendChild(OrderModal(orderData));
 }

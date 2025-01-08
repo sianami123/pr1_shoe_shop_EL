@@ -13,13 +13,19 @@ const urlParams = new URLSearchParams(window.location.search);
 const brandsParam = urlParams.get("brands");
 
 let allProducts;
+let allWishlistIds;
 
 const user = getLocalStorage("user");
 
 const loadingElement = showLoading();
 
 try {
-  allProducts = await getAllProductsController(brandsParam);
+  const { products, wishlistIds } = await getAllProductsController(brandsParam);
+  allProducts = products;
+  allWishlistIds = wishlistIds;
+
+  console.log("wishlistIds:", allWishlistIds);
+  console.log("allProducts:", allProducts);
 
   hideLoading(loadingElement);
 } catch (error) {
@@ -40,7 +46,10 @@ function ProductsPage() {
       Brands(),
       MostPopular(),
       FilterPills({ url: "/home.html" }),
-      ProductGrid({ products: allProducts.records || [] }),
+      ProductGrid({
+        products: allProducts.records || [],
+        wishlistIds: allWishlistIds,
+      }),
       BottomNav(),
     ],
   });

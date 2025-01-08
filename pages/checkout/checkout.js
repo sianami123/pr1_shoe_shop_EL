@@ -599,7 +599,7 @@ function CheckoutButton() {
       El({
         element: "button",
         className:
-          "w-full bg-black text-white py-3.5 rounded-full flex items-center justify-center gap-2",
+          "checkout-button w-full bg-black text-white py-3.5 rounded-full flex items-center justify-center gap-2 cursor-pointer",
         eventListener: [
           {
             event: "click",
@@ -613,20 +613,7 @@ function CheckoutButton() {
                 return;
               }
 
-              // Show loading state
-              const button = document.querySelector(".checkout-button");
-              if (button) {
-                button.disabled = true;
-                button.innerHTML = "Processing...";
-              }
-
-              await submitOrder();
-
-              // Reset button state
-              if (button) {
-                button.disabled = false;
-                button.innerHTML = "Continue to Payment";
-              }
+              showPaymentMethodModal();
             },
           },
         ],
@@ -1059,6 +1046,7 @@ function PaymentPage() {
                 callback: () => {
                   const successModal = document.getElementById("success-modal");
                   successModal.classList.remove("hidden");
+                  submitOrder();
                 },
               },
             ],
@@ -1232,7 +1220,7 @@ async function submitOrder() {
   console.log("submitOrder");
   try {
     const orderData = {
-      status: "Active",
+      status: "active",
       isDelivered: false,
       ship_address: selectedAddress.address,
       ship_type: selectedShipping?.name?.toLowerCase() || "",
@@ -1243,6 +1231,8 @@ async function submitOrder() {
         color: product.selectedColor,
         quantity: product.selectedQuantity,
         price: product.price,
+        image: product.imageURL?.[0],
+        name: product.name,
       })),
     };
 

@@ -154,7 +154,7 @@ async function getWishlistApi({ productId }) {
 async function getWishlistByBrandApi({ brand }) {
   console.log("brand in get wishlist by brand api:", brand);
   let url = WISHLIST_URL;
-  if (brand) {
+  if (brand && brand !== "" && brand.toLowerCase() !== "all") {
     url = `${WISHLIST_URL}?filterKey=brand&filterValue=${brand}`;
   }
   try {
@@ -186,6 +186,7 @@ async function getAllProductsApi(brand) {
       },
     });
     if (response.status !== 200) {
+      window.location.href = "/login.html";
       throw new Error(response.statusText);
     }
     const data = await response.json();

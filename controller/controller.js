@@ -47,15 +47,17 @@ async function getFilteredProductsIdsController(productIds) {
 
 async function getAllProductsController(brand) {
   try {
-    const data = await getAllProductsApi(brand);
-    if (data?.message === "Invalid access token") {
+    const products = await getAllProductsApi(brand);
+    if (products?.message === "Invalid access token") {
       window.location.href = "/login.html";
       return null;
     }
-    return data;
+    const wishlist = await getWishlistByBrandApi({});
+    const wishlistIds = wishlist.records.map((item) => item.productId);
+    return { products, wishlistIds };
   } catch (error) {
     console.error("Get all products controller failed", error);
-    window.location.href = "/login.html";
+    // window.location.href = "/login.html";
     return error;
   }
 }

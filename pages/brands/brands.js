@@ -34,6 +34,6 @@ function BrandsPage({ productsBrandsArray = [] }) {
   return El({
     element: "div",
     className: "flex flex-col",
-    children: [ProductGrid({ products: productsBrandsArray })],
+    children: [ProductGrid({ products: productsBrandsArray, wishlistIds: [] })],
   });
 }
