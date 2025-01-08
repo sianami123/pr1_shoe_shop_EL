@@ -12,7 +12,6 @@ searchDOM.append(
 );
 
 let searchValue = "";
-let searchHistory = [];
 
 function SearchInput() {
   return El({
@@ -51,7 +50,7 @@ function SearchInput() {
                 event: "keypress",
                 callback: (e) => {
                   if (e.key === "Enter") {
-                    handleSearch(searchValue);
+                    handleSearch();
                     // console.log("Enter key pressed", searchValue);
                   }
                 },
@@ -74,7 +73,7 @@ function SearchInput() {
                 event: "click",
                 callback: () => {
                   // console.log("Search button clicked", searchValue);
-                  handleSearch(searchValue);
+                  handleSearch();
                 },
               },
             ],
@@ -104,29 +103,42 @@ function HistoryModal() {
   const searchHistory = JSON.parse(
     localStorage.getItem("searchHistory") || "[]"
   );
-  console.log(
-    "searchHistory in history modal:",
-    searchHistory,
-    typeof searchHistory
-  );
   return El({
     element: "div",
     id: "history-modal",
-    className: "p-2 mx-2 rounded-xl mt-1 hidden bg-gray-100",
+    className: "fixed top-35 left-0 w-full h-full z-10 hidden  p-5",
+    eventListener: [
+      {
+        event: "click",
+        callback: () => {
+          const historyModal = document.getElementById("history-modal");
+          historyModal.classList.add("hidden");
+        },
+      },
+    ],
     children: [
       // row 1
       El({
         element: "div",
-        className: "flex justify-between items-center",
+        className: "flex justify-between items-center mb-2 ",
         children: [
           El({
             element: "h3",
             className: "font-medium",
-            children: ["Recent Searches"],
+            children: ["Recent"],
           }),
           El({
             element: "button",
             className: "text-sm text-gray-500 hover:text-gray-700",
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  handleClearAllSearchHistory();
+                  rerenderUI();
+                },
+              },
+            ],
             children: ["Clear All"],
           }),
         ],
@@ -140,7 +152,7 @@ function HistoryModal() {
       // row 2 (search history)
       El({
         element: "div",
-        className: "flex flex-col gap-2",
+        className: "flex flex-col gap-2 mt-2",
         children: searchHistory.map((search) => {
           return SearchHistoryItem(search);
         }),
@@ -178,7 +190,16 @@ function SearchHistoryItem(search) {
             },
           },
         ],
-        children: ["X"],
+        children: [
+          El({
+            element: "img",
+            className: "w-5 h-5",
+            restAttrs: {
+              src: "./pages/search/assets/close.svg",
+              alt: "close",
+            },
+          }),
+        ],
       }),
     ],
   });
@@ -208,11 +229,20 @@ async function handleInputFocus() {
   );
   console.log("searchHistory in handleInputFocus:", searchHistory);
   //  remove hidden class from history modal
-  const historyModal = document.getElementById("history-modal");
-  historyModal.classList.remove("hidden");
+  if (searchHistory.length > 0) {
+    const historyModal = document.getElementById("history-modal");
+    historyModal.classList.remove("hidden");
+  }
 }
 
-async function handleSearch(searchValue) {
+async function handleSearch() {
+  const searchInput = document.getElementById("search-input");
+  const searchValue = searchInput.value;
+  // Don't proceed if searchValue is empty or just whitespace
+  if (!searchValue?.trim()) {
+    return;
+  }
+
   const loadingElement = showLoading();
 
   try {
@@ -228,15 +258,23 @@ async function handleSearch(searchValue) {
         localStorage.getItem("searchHistory") || "[]"
       );
 
-      // Remove duplicate if exists
-      searchHistory = searchHistory.filter((item) => item !== searchValue);
+      // Trim the search value to remove any leading/trailing whitespace
+      const trimmedSearchValue = searchValue.trim();
 
-      localStorage.setItem(
-        "searchHistory",
-        searchHistory // Do I have gehtHistory or not?(it`s possible it didn`t exist the first time.)
-          ? JSON.stringify([...searchHistory, searchValue])
-          : JSON.stringify([searchHistory])
+      // Remove duplicate if exists
+      searchHistory = searchHistory.filter(
+        (item) => item !== trimmedSearchValue
       );
+
+      if (trimmedSearchValue) {
+        searchHistory.unshift(trimmedSearchValue);
+
+        searchHistory = searchHistory.slice(0, 20);
+
+        localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+
+        rerenderUI();
+      }
     }
 
     // Remove any existing "not found" messages or previous results
@@ -261,7 +299,7 @@ function SearchResults(searchResults, searchValue) {
       element: "div",
       id: "search-results",
       className:
-        "search-results-container flex flex-col items-center justify-center p-8 text-center",
+        "search-results-container fixed top-35 left-0 w-full h-full z-20 flex flex-col items-center justify-center p-8 text-center",
       children: [
         El({
           element: "div",

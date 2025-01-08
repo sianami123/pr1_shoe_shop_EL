@@ -8,11 +8,18 @@ import {
 
 const checkout = document.getElementById("checkout");
 
-let selectedAddress = "Home"; // Track selected address
+let selectedAddress = { name: "Home", address: "61480 Sunbrook Park PC 5679" };
 let selectedShipping = null;
 let mergedProducts;
+let activePromoCode = null;
 
 init();
+
+function rerenderUI() {
+  checkout.innerHTML = "";
+  checkout.append(CheckoutPage());
+  calculateAndUpdatePrices();
+}
 
 async function init() {
   try {
@@ -41,9 +48,67 @@ async function init() {
     } else if (cartProducts.records.length === 0) {
       checkout.innerHTML = "";
     }
+    calculateAndUpdatePrices();
   } catch (error) {
     console.log("init cart failed", error);
   }
+}
+
+function calculateAndUpdatePrices() {
+  // Calculate subtotal from products
+  let subtotal = mergedProducts.reduce((total, product) => {
+    return total + product.price * product.selectedQuantity;
+  }, 0);
+
+  // Calculate shipping cost
+  const shippingCost = selectedShipping?.price || 0;
+
+  // Calculate promo discount (30% if active)
+  const promoDiscount = activePromoCode ? subtotal * 0.3 : 0;
+
+  // Calculate final total
+  const total = subtotal + shippingCost - promoDiscount;
+
+  // Update UI elements
+  const subtotalElement = document.getElementById("subtotal-amount");
+  const shippingElement = document.getElementById("shipping-amount");
+  const promoElement = document.getElementById("promo-amount");
+  const totalElement = document.getElementById("total-amount");
+
+  if (subtotalElement) {
+    subtotalElement.innerHTML = `$${subtotal.toFixed(2)}`;
+  }
+
+  if (shippingElement) {
+    shippingElement.innerHTML = `$${shippingCost.toFixed(2)}`;
+  }
+
+  if (promoElement) {
+    promoElement.innerHTML = `-$${promoDiscount.toFixed(2)}`;
+  }
+
+  if (totalElement) {
+    totalElement.innerHTML = `$${total.toFixed(2)}`;
+  }
+}
+
+function calculateTotalPrice() {
+  // Calculate subtotal from products
+  const subtotal = mergedProducts.reduce((total, product) => {
+    return total + product.price * product.selectedQuantity;
+  }, 0);
+
+  // Get shipping cost from selected shipping option
+  const shippingCost = selectedShipping?.price || 0;
+
+  // Calculate total
+  const total = subtotal + shippingCost;
+
+  return {
+    subtotal,
+    shippingCost,
+    total,
+  };
 }
 
 function CheckoutPage() {
@@ -56,7 +121,11 @@ function CheckoutPage() {
       OrderList({ mergedProducts }),
       ShippingType(),
       PromoCode(),
-      PaymentSummary(),
+      El({
+        element: "div",
+        id: "payment-summary-container",
+        children: [PaymentSummary()],
+      }),
       CheckoutButton(),
       ShippingAddressModal(),
       ShippingTypeModal(),
@@ -131,12 +200,12 @@ function ShippingAddress() {
               El({
                 element: "h3",
                 className: "text-[20px] font-medium",
-                children: "Home",
+                children: [`${selectedAddress.name}`],
               }),
               El({
                 element: "p",
                 className: "text-[14px] text-gray-500",
-                children: "61480 Sunbrook Park PC 5679",
+                children: [`${selectedAddress.address}`],
               }),
             ],
           }),
@@ -269,7 +338,7 @@ function OrderItem({
               El({
                 element: "p",
                 className: "text-[20px] font-medium",
-                children: `$${price}`,
+                children: `$${price * quantity}`,
               }),
               El({
                 element: "div",
@@ -361,29 +430,88 @@ function PromoCode() {
         className: "pb-5 text-[17px] font-medium",
         children: "Promo Code",
       }),
-      El({
-        element: "div",
-        className:
-          "flex gap-5 items-center justify-between bg-gray-100 p-1 rounded-[20px]",
-        children: [
+      activePromoCode
+        ? // Show applied promo code with close button
           El({
-            element: "input",
-            className: "outline-none bg-black bg-opacity-0 p-1",
-            restAttrs: {
-              type: "text",
-              placeholder: "Enter Promo Code",
-            },
-          }),
+            element: "div",
+            className: "flex items-center gap-2",
+            children: [
+              El({
+                element: "div",
+                className:
+                  "bg-black text-white rounded-full py-2 px-4 flex items-center gap-2",
+                children: [
+                  El({
+                    element: "span",
+                    children: "Discount 30% Off",
+                  }),
+                  El({
+                    element: "button",
+                    className: "ml-1",
+                    eventListener: [
+                      {
+                        event: "click",
+                        callback: () => {
+                          activePromoCode = null;
+                          rerenderUI();
+                        },
+                      },
+                    ],
+                    children: [
+                      El({
+                        element: "img",
+                        src: "./pages/checkout/assets/close.svg",
+                        className: "w-4 h-4",
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          })
+        : // Show input field when no promo code is applied
           El({
-            element: "img",
-            src: "./pages/checkout/assets/add.svg",
-            className: "w-[60px]",
-            restAttrs: {
-              alt: "",
-            },
+            element: "div",
+            className:
+              "flex gap-5 items-center justify-between bg-gray-100 p-1 rounded-[20px]",
+            children: [
+              El({
+                element: "input",
+                className: "outline-none bg-black bg-opacity-0 p-1 flex-1 ml-3",
+                id: "promo-input",
+                restAttrs: {
+                  type: "text",
+                  placeholder: "Enter Promo Code",
+                },
+              }),
+              El({
+                element: "button",
+                className: "w-[60px]",
+                eventListener: [
+                  {
+                    event: "click",
+                    callback: () => {
+                      const promoInput = document.getElementById("promo-input");
+                      if (promoInput.value.trim() === "gold") {
+                        activePromoCode = "30";
+                        rerenderUI();
+                      }
+                    },
+                  },
+                ],
+                children: [
+                  El({
+                    element: "img",
+                    src: "./pages/checkout/assets/add.svg",
+                    className: "w-full",
+                    restAttrs: {
+                      alt: "add promo code",
+                    },
+                  }),
+                ],
+              }),
+            ],
           }),
-        ],
-      }),
     ],
   });
 }
@@ -405,7 +533,7 @@ function PaymentSummary() {
           El({
             element: "span",
             className: "font-medium",
-            children: "$558.00",
+            id: "subtotal-amount",
           }),
         ],
       }),
@@ -421,7 +549,23 @@ function PaymentSummary() {
           El({
             element: "span",
             className: "font-medium",
-            children: "$24.00",
+            id: "shipping-amount",
+          }),
+        ],
+      }),
+      El({
+        element: "div",
+        className: "flex justify-between items-center",
+        children: [
+          El({
+            element: "span",
+            className: "text-gray-500",
+            children: "Promo",
+          }),
+          El({
+            element: "span",
+            className: "font-medium",
+            id: "promo-amount",
           }),
         ],
       }),
@@ -437,7 +581,7 @@ function PaymentSummary() {
           El({
             element: "span",
             className: "font-medium text-lg",
-            children: "$582.00",
+            id: "total-amount",
           }),
         ],
       }),
@@ -541,10 +685,16 @@ function ShippingAddressModal() {
           El({
             element: "button",
             className: "w-full bg-black text-white py-3.5 rounded-full",
-            onclick: () => {
-              const addressModal = document.getElementById("addressModal");
-              addressModal.classList.add("hidden");
-            },
+            eventListener: [
+              {
+                event: "click",
+                callback: () => {
+                  const addressModal = document.getElementById("addressModal");
+                  addressModal.classList.add("hidden");
+                  rerenderUI();
+                },
+              },
+            ],
             children: ["Apply"],
           }),
         ],
@@ -586,12 +736,17 @@ function AddressOption({ name, address, isDefault }) {
                     className: "font-medium",
                     children: name,
                   }),
-                  isDefault &&
-                    El({
-                      element: "span",
-                      className: "text-xs text-gray-400",
-                      children: "(Default)",
-                    }),
+                  isDefault
+                    ? El({
+                        element: "span",
+                        className: "text-xs text-gray-400",
+                        children: "(Default)",
+                      })
+                    : El({
+                        element: "span",
+                        className: "text-xs text-gray-400",
+                        children: "",
+                      }),
                 ],
               }),
               El({
@@ -606,6 +761,14 @@ function AddressOption({ name, address, isDefault }) {
       El({
         element: "input",
         className: "w-5 h-5 accent-black",
+        eventListener: [
+          {
+            event: "change",
+            callback: () => {
+              selectedAddress = { name, address };
+            },
+          },
+        ],
         restAttrs: {
           type: "radio",
           name: "address",
@@ -700,6 +863,7 @@ function ShippingTypeModal() {
             onclick: () => {
               const shippingModal = document.getElementById("shippingModal");
               shippingModal.classList.add("hidden");
+              rerenderUI();
             },
             children: ["Apply"],
           }),
@@ -755,6 +919,24 @@ function ShippingOption({ name, price, eta, icon }) {
       El({
         element: "input",
         className: "w-5 h-5 accent-black",
+        eventListener: [
+          {
+            event: "change",
+            callback: (e) => {
+              if (e.target.checked) {
+                selectedShipping = { name, price };
+                // Update the payment summary
+                const paymentSummaryContainer = document.querySelector(
+                  "#payment-summary-container"
+                );
+                if (paymentSummaryContainer) {
+                  paymentSummaryContainer.innerHTML = "";
+                  paymentSummaryContainer.append(PaymentSummary());
+                }
+              }
+            },
+          },
+        ],
         restAttrs: {
           type: "radio",
           name: "shipping",

@@ -129,7 +129,7 @@ function PaymentMethodItem({ name, balance, icon, id }) {
                 className: "font-medium",
                 children: name,
               }),
-              balance &&
+              balance !== undefined &&
                 El({
                   element: "span",
                   className: "text-sm text-gray-500",
@@ -205,6 +205,14 @@ function showSuccessModal() {
                         element: "div",
                         className:
                           "bg-black p-5 text-white rounded-full w-full text-center",
+                        eventListener: [
+                          {
+                            event: "click",
+                            callback: () => {
+                              window.location.href = "/orders.html";
+                            },
+                          },
+                        ],
                         children: [
                           El({
                             element: "h3",

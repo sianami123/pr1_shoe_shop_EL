@@ -352,6 +352,14 @@ function CartFooter() {
         element: "button",
         className:
           "w-full bg-black text-white py-3 rounded-full flex items-center justify-center gap-2",
+        eventListener: [
+          {
+            event: "click",
+            callback: () => {
+              window.location.href = "/checkout.html";
+            },
+          },
+        ],
         children: [
           "Checkout",
           El({
@@ -366,17 +374,17 @@ function CartFooter() {
 }
 
 function RemoveFromCartModal({
-  name,
-  price,
-  color,
-  size,
-  image,
-  quantity,
-  productId,
-  cartId,
-}) {
+  name = "",
+  price = 0,
+  color = "",
+  size = "",
+  image = "",
+  quantity = 0,
+  productId = null,
+  cartId = null,
+} = {}) {
   const colorClass =
-    color === "black"
+    color.toLowerCase() === "black"
       ? "bg-black"
       : color.toLowerCase() === "white"
       ? "bg-white"
@@ -552,6 +560,7 @@ function RemoveFromCartModal({
 }
 
 function calculateAndUpdatePrices() {
+  console.log("mergedProducts:", mergedProducts);
   const allPriceElements = document.querySelectorAll('[id^="price-"]');
   let totalPrice = 0;
 
