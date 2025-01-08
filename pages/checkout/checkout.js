@@ -1,12 +1,50 @@
 import { El } from "../../utils/El.js";
+import { showToast } from "../../components/toast.js";
 import { BackButton } from "../../components/ui/back_button.js";
+import {
+  getCartController,
+  getFilteredProductsIdsController,
+} from "../../controller/controller.js";
 
 const checkout = document.getElementById("checkout");
 
 let selectedAddress = "Home"; // Track selected address
 let selectedShipping = null;
+let mergedProducts;
 
-checkout.appendChild(CheckoutPage());
+init();
+
+async function init() {
+  try {
+    const cartProducts = await getCartController({});
+    const productIds = cartProducts.records.map((product) => product.productId);
+    const filteredProducts = await getFilteredProductsIdsController(productIds);
+
+    mergedProducts = cartProducts.records.map((cartItem) => {
+      const productDetails = filteredProducts.records.find(
+        (product) => product.id === cartItem.productId
+      );
+      return {
+        ...productDetails,
+        selectedQuantity: cartItem.selectedQuantity,
+        selectedSize: cartItem.selectedSize,
+        selectedColor: cartItem.selectedColor,
+        cartId: cartItem.id,
+      };
+    });
+
+    console.log("mergedProducts in init:", mergedProducts);
+
+    if (cartProducts.records.length > 0) {
+      checkout.innerHTML = "";
+      checkout.append(CheckoutPage());
+    } else if (cartProducts.records.length === 0) {
+      checkout.innerHTML = "";
+    }
+  } catch (error) {
+    console.log("init cart failed", error);
+  }
+}
 
 function CheckoutPage() {
   return El({
@@ -15,7 +53,7 @@ function CheckoutPage() {
     children: [
       Header(),
       ShippingAddress(),
-      OrderList(),
+      OrderList({ mergedProducts }),
       ShippingType(),
       PromoCode(),
       PaymentSummary(),
@@ -133,7 +171,7 @@ function ShippingAddress() {
   });
 }
 
-function OrderList() {
+function OrderList({ mergedProducts }) {
   return El({
     element: "div",
     className: "px-4 py-4",
@@ -141,43 +179,34 @@ function OrderList() {
       El({
         element: "h2",
         className: "text-lg font-medium mb-4",
-        children: "Order List",
+        children: ["Order List"],
       }),
       El({
         element: "div",
         className: "space-y-4",
-        children: [
-          OrderItem({
-            name: "Air Jordan 3 Retro",
-            price: "200.00",
-            image: "./assets/shoe_card.png",
-            quantity: 1,
-          }),
-          OrderItem({
-            name: "Air Jordan 3 Retro",
-            price: "200.00",
-            image: "./assets/shoe_card.png",
-            quantity: 1,
-          }),
-          OrderItem({
-            name: "Air Jordan 3 Retro",
-            price: "200.00",
-            image: "./assets/shoe_card.png",
-            quantity: 1,
-          }),
-          OrderItem({
-            name: "Air Jordan 3 Retro",
-            price: "200.00",
-            image: "./assets/shoe_card.png",
-            quantity: 1,
-          }),
-        ],
+        children: mergedProducts.map((product) => {
+          return OrderItem({
+            name: product.name,
+            price: product.price,
+            image: product.imageURL?.[0],
+            quantity: product.selectedQuantity,
+            selectedSize: product.selectedSize,
+            selectedColor: product.selectedColor,
+          });
+        }),
       }),
     ],
   });
 }
 
-function OrderItem({ name, price, image, quantity }) {
+function OrderItem({
+  name,
+  price,
+  image,
+  quantity,
+  selectedSize,
+  selectedColor,
+}) {
   return El({
     element: "div",
     className: "shadow-xl flex gap-4 p-5 bg-white rounded-[35px]",
@@ -479,15 +508,10 @@ function ShippingAddressModal() {
             children: [
               El({
                 element: "img",
-                src: "./assets/back_arrow.svg",
+                src: "./pages/checkout/assets/back-arrow.svg",
                 className: "w-6 h-6",
               }),
             ],
-          }),
-          El({
-            element: "h2",
-            className: "text-lg font-medium",
-            children: "Shipping Address",
           }),
         ],
       }),
@@ -504,8 +528,8 @@ function ShippingAddressModal() {
         children: [
           El({
             element: "button",
-            className: "w-full py-4 rounded-xl bg-gray-100 text-gray-600",
-            children: "Add New Address",
+            className: "w-full py-4 rounded-3xl bg-gray-100 text-gray-600",
+            children: ["Add New Address"],
           }),
         ],
       }),
@@ -518,10 +542,10 @@ function ShippingAddressModal() {
             element: "button",
             className: "w-full bg-black text-white py-3.5 rounded-full",
             onclick: () => {
-              updateSelectedAddress();
-              hideAddressModal();
+              const addressModal = document.getElementById("addressModal");
+              addressModal.classList.add("hidden");
             },
-            children: "Apply",
+            children: ["Apply"],
           }),
         ],
       }),
@@ -544,7 +568,7 @@ function AddressOption({ name, address, isDefault }) {
             children: [
               El({
                 element: "img",
-                src: "./assets/location.svg",
+                src: "./pages/checkout/assets/location.svg",
                 className: "w-5 h-5",
               }),
             ],
@@ -599,7 +623,7 @@ function ShippingTypeModal() {
       name: "Economy",
       price: 10,
       eta: "Dec 20-23",
-      icon: "truck-slow.svg",
+      icon: "delivered.svg",
     },
     {
       name: "Regular",
@@ -674,10 +698,10 @@ function ShippingTypeModal() {
             element: "button",
             className: "w-full bg-black text-white py-3.5 rounded-full",
             onclick: () => {
-              updateSelectedShipping();
-              hideShippingModal();
+              const shippingModal = document.getElementById("shippingModal");
+              shippingModal.classList.add("hidden");
             },
-            children: "Apply",
+            children: ["Apply"],
           }),
         ],
       }),
@@ -700,7 +724,7 @@ function ShippingOption({ name, price, eta, icon }) {
             children: [
               El({
                 element: "img",
-                src: `./assets/${icon}`,
+                src: `./pages/checkout/assets/${icon}`,
                 className: "w-6 h-6",
               }),
             ],
