@@ -1,7 +1,19 @@
 import { El } from "../../utils/El.js";
 import { BottomNav } from "../../components/bottom_nav/bottom_nav.js";
+import { getOrdersController } from "../../controller/controller.js";
 
 const orders = document.getElementById("orders");
+
+ordersInit();
+
+async function ordersInit() {
+  try {
+    const ordersData = await getOrdersController();
+    console.log(ordersData.records);
+  } catch (error) {
+    console.error("Orders init failed", error);
+  }
+}
 
 // Sample data
 const ordersData = [

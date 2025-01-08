@@ -13,6 +13,8 @@ import {
   getWishlistByBrandApi,
   getFilteredProductsIdsApi,
   updateCartQuantityApi,
+  createOrderApi,
+  getOrdersApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -191,6 +193,29 @@ async function getWishlistByBrandController({ brand }) {
 }
 
 //! WISHLIST CONTROLLER END
+
+//! ORDER CONTROLLER START
+async function createOrderController({ orderData }) {
+  try {
+    const data = await createOrderApi({ orderData });
+    return data;
+  } catch (error) {
+    console.error("Create order controller failed", error);
+    return error;
+  }
+}
+
+async function getOrdersController() {
+  try {
+    const data = await getOrdersApi();
+    return data;
+  } catch (error) {
+    console.error("Get orders controller failed", error);
+    return error;
+  }
+}
+//! ORDER CONTROLLER END
+
 export {
   loginController,
   getAllProductsController,
@@ -205,4 +230,6 @@ export {
   getWishlistByBrandController,
   getFilteredProductsIdsController,
   updateCartQuantityController,
+  createOrderController,
+  getOrdersController,
 };

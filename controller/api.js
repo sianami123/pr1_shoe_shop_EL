@@ -8,6 +8,7 @@ const LOGIN_URL = `${BASE_URL}/api/users/login`;
 const PRODUCTS_URL = `${BASE_URL}/api/records/products`;
 const CART_URL = `${BASE_URL}/api/records/cart`;
 const WISHLIST_URL = `${BASE_URL}/api/records/wishlist`;
+const ORDER_URL = `${BASE_URL}/api/records/order`;
 
 //! CART API
 async function addToCartApi({
@@ -250,6 +251,42 @@ async function searchProductsApi(searchValue) {
 }
 //! PRODUCT API END
 
+//! ORDER API START
+async function getOrdersApi() {
+  try {
+    const response = await fetch(ORDER_URL, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Get orders API failed", error);
+  }
+}
+
+async function createOrderApi({ orderData }) {
+  try {
+    const response = await fetch(ORDER_URL, {
+      method: "POST",
+      body: JSON.stringify(orderData),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    console.log("create order data:", data);
+    return data;
+  } catch (error) {
+    console.error("Create order API failed", error);
+  }
+}
+//! ORDER API END
+
 //! LOGIN API START
 async function loginApi({ email, password }) {
   try {
@@ -282,4 +319,6 @@ export {
   removeFromWishlistApi,
   getWishlistByBrandApi,
   getFilteredProductsIdsApi,
+  createOrderApi,
+  getOrdersApi,
 };
