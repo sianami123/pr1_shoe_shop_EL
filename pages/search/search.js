@@ -186,7 +186,7 @@ function SearchHistoryItem(search) {
           {
             event: "click",
             callback: () => {
-              findRemoveFromHistory(search);
+              handleFindRemoveFromHistory(search);
             },
           },
         ],
@@ -205,7 +205,7 @@ function SearchHistoryItem(search) {
   });
 }
 
-function findRemoveFromHistory(search) {
+function handleFindRemoveFromHistory(search) {
   const searchHistory = JSON.parse(
     localStorage.getItem("searchHistory") || "[]"
   );
@@ -284,6 +284,8 @@ async function handleSearch() {
     allPreviousResults.forEach((element) => element.remove());
 
     const searchResultsElement = SearchResults(searchResults, searchValue);
+    const historyModal = document.getElementById("history-modal");
+    historyModal.classList.add("hidden");
     searchDOM.append(searchResultsElement);
 
     hideLoading(loadingElement);
@@ -294,12 +296,12 @@ async function handleSearch() {
 }
 
 function SearchResults(searchResults, searchValue) {
-  if (!searchResults?.records?.length) {
+  if (searchResults?.records?.length === 0) {
     return El({
       element: "div",
       id: "search-results",
       className:
-        "search-results-container fixed top-35 left-0 w-full h-full z-20 flex flex-col items-center justify-center p-8 text-center",
+        "search-results-container w-full h-full z-20 flex flex-col items-center justify-center p-8 text-center",
       children: [
         El({
           element: "div",

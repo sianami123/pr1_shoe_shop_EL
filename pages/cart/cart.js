@@ -77,6 +77,14 @@ function CartHeader() {
       El({
         element: "div",
         className: "flex items-center",
+        eventListener: [
+          {
+            event: "click",
+            callback: () => {
+              window.location.href = "/search.html";
+            },
+          },
+        ],
         children: [
           El({ element: "img", src: "./assets/search.svg", className: "w-6" }),
         ],
@@ -213,7 +221,7 @@ function CartItem({
           }),
           El({
             element: "div",
-            className: "flex justify-cente items-center gap-2",
+            className: "flex justify-center items-center gap-2",
             children: [
               El({
                 element: "div",

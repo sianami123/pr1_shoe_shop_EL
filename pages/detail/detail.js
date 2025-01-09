@@ -80,9 +80,14 @@ function rerenderDetailPage() {
 function DetailPage() {
   const element = El({
     element: "div",
+    className: "relative",
     children: [
-      BackButton({ text: "Products", backURL: "/home.html" }),
       ProductImageSlider(),
+      El({
+        element: "div",
+        className: "absolute top-4 left-4 z-10",
+        children: [BackButton({ text: "", backURL: "/home.html" })],
+      }),
       El({
         element: "div",
         className: "container mx-auto max-w-md p-4",
@@ -102,7 +107,6 @@ function DetailPage() {
     ],
   });
 
-  // Initialize Swiper after a small delay to ensure DOM is ready
   setTimeout(() => {
     initSwiper();
   }, 0);
@@ -153,7 +157,7 @@ function ProductImageSlider() {
 function ProductInfo() {
   return El({
     element: "div",
-    className: "space-y-6",
+    className: "space-y-4",
     children: [
       // Title and heart
       El({
@@ -248,14 +252,48 @@ function ProductInfo() {
       // divider line
       El({
         element: "div",
-        className: "h-1 w-full bg-gray-200",
+        className: "h-[1px] w-full bg-gray-200",
       }),
       // description
       El({
-        element: "p",
-        className: "text-sm text-gray-500",
-        innerText: "Description",
+        element: "div",
+        className: "flex justify-between items-center",
+        children: [
+          El({
+            element: "p",
+            className: "text-lg text-black font-semibold",
+            innerText: "Description",
+          }),
+          // Brand, Category, Gender
+          El({
+            element: "div",
+            className: "flex items-center gap-2 text-sm text-gray-500",
+            children: [
+              El({
+                element: "span",
+                innerText: detailProduct.brand,
+              }),
+              El({
+                element: "span",
+                innerText: "•",
+              }),
+              El({
+                element: "span",
+                innerText: detailProduct.category,
+              }),
+              El({
+                element: "span",
+                innerText: "•",
+              }),
+              El({
+                element: "span",
+                innerText: detailProduct.gender,
+              }),
+            ],
+          }),
+        ],
       }),
+
       El({
         element: "p",
         className: "text-sm text-gray-500",
@@ -263,33 +301,6 @@ function ProductInfo() {
           "lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
       }),
 
-      // Brand, Category, Gender
-      El({
-        element: "div",
-        className: "flex gap-2 text-sm text-gray-500",
-        children: [
-          El({
-            element: "span",
-            innerText: detailProduct.brand,
-          }),
-          El({
-            element: "span",
-            innerText: "•",
-          }),
-          El({
-            element: "span",
-            innerText: detailProduct.category,
-          }),
-          El({
-            element: "span",
-            innerText: "•",
-          }),
-          El({
-            element: "span",
-            innerText: detailProduct.gender,
-          }),
-        ],
-      }),
       // Inventory///
       //////////////////////////////////////
     ],
@@ -418,20 +429,21 @@ function ColorSelector() {
 function QuantitySelector() {
   return El({
     element: "div",
-    className: "space-y-3 flex items-center space-x-6",
+    className: "flex items-center gap-4",
     children: [
       El({
-        element: "h2",
-        className: "font-semibold ",
+        element: "span",
+        className: "text-lg font-medium",
         innerText: "Quantity",
       }),
       El({
         element: "div",
-        className: "flex items-center border rounded-full",
+        className: "flex items-center bg-gray-100 rounded-full px-4 py-2",
         children: [
           El({
             element: "button",
-            className: "px-1 py-2 text-xl",
+            className:
+              "text-xl font-medium w-6 h-6 flex items-center justify-center",
             innerText: "−",
             eventListener: [
               {
@@ -449,20 +461,20 @@ function QuantitySelector() {
           }),
           El({
             element: "span",
-            className: "px-4 py-2",
+            className: "mx-6 text-lg font-medium",
             id: "quantityValue",
             innerText: quantity,
           }),
           El({
             element: "button",
-            className: "px-1 py-2 text-xl",
+            className:
+              "text-xl font-medium w-6 h-6 flex items-center justify-center",
             innerText: "+",
             eventListener: [
               {
                 event: "click",
                 callback: () => {
                   if (quantity < detailProduct.items_left) {
-                    console.log("quantity:", quantity);
                     quantity++;
                     document.getElementById("quantityValue").innerText =
                       quantity;
@@ -473,11 +485,6 @@ function QuantitySelector() {
             ],
           }),
         ],
-      }),
-      El({
-        element: "span",
-        className: "text-gray-600",
-        innerText: `${detailProduct.items_left} items left`,
       }),
     ],
   });
@@ -499,19 +506,19 @@ function TotalAndCart() {
             children: [
               El({
                 element: "span",
-                className: "text-sm text-gray-500",
+                className: "text-gray-500",
                 innerText: "Total price",
               }),
               El({
                 element: "p",
-                className: "text-xl font-semibold",
-                innerText: `$${detailProduct.price * quantity}`,
+                className: "text-3xl font-semibold",
+                innerText: `$${detailProduct.price * quantity}.00`,
               }),
             ],
           }),
           El({
             element: "button",
-            className: `w-[250px] bg-black text-white px-3 py-2 rounded-full flex items-center justify-center gap-2 ${
+            className: `w-[250px] bg-black text-white px-6 py-4 rounded-full flex items-center justify-center gap-3 ${
               !isInCart && (!selectedSize || !selectedColor)
                 ? "opacity-50 cursor-not-allowed"
                 : ""
@@ -559,12 +566,13 @@ function TotalAndCart() {
             children: [
               El({
                 element: "img",
-                src: "../../pages/detail/assets/bag.png",
+                src: "../../assets/bag_white.svg",
                 alt: "cart",
                 className: "w-6 h-6",
               }),
               El({
                 element: "span",
+                className: "text-lg font-medium",
                 innerText: `${isInCart ? "Remove from cart" : "Add to Cart"}`,
               }),
             ],
