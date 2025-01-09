@@ -196,8 +196,7 @@ function Login() {
           // Login Button
           El({
             element: "button",
-            className:
-              "mb-6 w-full bg-gray-600 text-white py-4 rounded-full hover:bg-gray-700 transition-colors mt-auto text-sm font-medium",
+            className: `mb-6 w-full bg-black text-white py-4 rounded-full hover:bg-gray-700 transition-colors mt-auto text-sm font-medium`,
             restAttrs: {
               type: "button",
             },

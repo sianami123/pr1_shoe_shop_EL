@@ -144,6 +144,14 @@ function Header() {
                 src: "./assets/search.svg",
                 className: "w-6",
                 restAttrs: { alt: "search" },
+                eventListener: [
+                  {
+                    event: "click",
+                    callback: () => {
+                      window.location.href = "/search.html";
+                    },
+                  },
+                ],
               }),
               El({
                 element: "img",

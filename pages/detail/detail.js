@@ -121,7 +121,7 @@ function ProductImageSlider() {
     children: [
       El({
         element: "div",
-        className: "swiper mySwiper h-[35vh]",
+        className: "swiper mySwiper h-[45vh]",
         children: [
           El({
             element: "div",
