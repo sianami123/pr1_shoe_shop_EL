@@ -95,6 +95,23 @@ async function updateCartQuantityApi({ cartId, changedQuantity }) {
     console.error("Update cart quantity API failed", error);
   }
 }
+
+async function deleteAllCartItemsApi() {
+  try {
+    const response = await fetch(`${CART_URL}/delete-all`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Delete all cart items API failed", error);
+  }
+}
 //! CART API END
 //! WISHLIST API START
 async function addToWishlistApi({ productId, ...product }) {
@@ -322,4 +339,5 @@ export {
   getFilteredProductsIdsApi,
   createOrderApi,
   getOrdersApi,
+  deleteAllCartItemsApi,
 };

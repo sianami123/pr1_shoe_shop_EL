@@ -5,6 +5,7 @@ import {
   getCartController,
   getFilteredProductsIdsController,
   createOrderController,
+  deleteAllCartItemsController,
 } from "../../controller/controller.js";
 
 const checkout = document.getElementById("checkout");
@@ -1047,6 +1048,8 @@ function PaymentPage() {
                   const successModal = document.getElementById("success-modal");
                   successModal.classList.remove("hidden");
                   submitOrder();
+                  // delete all cart items
+                  deleteAllCartItemsController();
                 },
               },
             ],

@@ -15,6 +15,7 @@ import {
   updateCartQuantityApi,
   createOrderApi,
   getOrdersApi,
+  deleteAllCartItemsApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -144,6 +145,16 @@ async function getCartController({ productId }) {
   }
 }
 
+async function deleteAllCartItemsController() {
+  try {
+    const data = await deleteAllCartItemsApi();
+    console.log("data in delete all cart items controller:", data);
+    return data;
+  } catch (error) {
+    console.error("Delete all cart items controller failed", error);
+    return error;
+  }
+}
 //! CART CONTROLLER END
 //! WISHLIST CONTROLLER START
 async function addToWishlistController({ productId, ...product }) {
@@ -234,4 +245,5 @@ export {
   updateCartQuantityController,
   createOrderController,
   getOrdersController,
+  deleteAllCartItemsController,
 };

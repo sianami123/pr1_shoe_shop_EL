@@ -196,7 +196,7 @@ function TabBar() {
       // Orders Container
       El({
         element: "div",
-        className: "flex flex-col gap-4 mt-4",
+        className: "flex flex-col gap-4 mt-4 pb-20",
         id: "orders-container", // Add ID to update content
       }),
     ],
@@ -258,15 +258,20 @@ function OrderItem({
     element: "div",
     className:
       "flex flex-col gap-2 bg-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer",
-    onclick: () =>
-      showOrderModal({
-        createdAt: formattedDate,
-        status,
-        ship_address,
-        ship_type,
-        totalPriceDiscount,
-        products,
-      }),
+    eventListener: [
+      {
+        event: "click",
+        callback: () =>
+          showOrderModal({
+            createdAt: formattedDate,
+            status,
+            ship_address,
+            ship_type,
+            totalPriceDiscount,
+            products,
+          }),
+      },
+    ],
     children: [
       // Header with Order ID, Date, and Status
       El({
@@ -284,12 +289,23 @@ function OrderItem({
               }),
               El({
                 element: "span",
-                className: `px-2 py-1 rounded-full text-xs ${
-                  status === "active"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-green-100 text-green-700"
-                }`,
-                children: status === "active" ? "active" : "completed",
+                className: `px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700`,
+                children: [`${status}`],
+              }),
+            ],
+          }),
+          El({
+            element: "div",
+            className: "flex items-center gap-1 text-sm text-gray-500",
+            children: [
+              El({
+                element: "img",
+                src: "./pages/orders/assets/truck.svg",
+                className: "w-6 h-6",
+              }),
+              El({
+                element: "span",
+                children: ship_type,
               }),
             ],
           }),
@@ -317,7 +333,7 @@ function OrderItem({
               El({
                 element: "div",
                 className:
-                  "absolute bottom-0 right-0 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded-tl-lg",
+                  "absolute bottom-0 right-0 bg-black bg-opacity-60 text-white text-xs px-1.5 py-0.5 rounded-full",
                 children: `x${product.quantity}`,
               }),
             ],
@@ -328,23 +344,8 @@ function OrderItem({
       El({
         element: "div",
         className:
-          "flex items-center justify-between mt-2 pt-2 border-t border-gray-100",
+          "flex items-center justify-end mt-2 pt-2 border-t border-gray-100",
         children: [
-          El({
-            element: "div",
-            className: "flex items-center gap-1 text-sm text-gray-500",
-            children: [
-              El({
-                element: "img",
-                src: "./pages/orders/assets/truck.svg",
-                className: "w-6 h-6",
-              }),
-              El({
-                element: "span",
-                children: ship_type,
-              }),
-            ],
-          }),
           El({
             element: "button",
             className: "text-sm text-blue-600 font-medium hover:text-blue-700",

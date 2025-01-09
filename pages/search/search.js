@@ -369,12 +369,6 @@ function SearchResults(searchResults, searchValue) {
   });
 }
 
-function handleRemoveFromHistory(searchValue) {
-  let searchHistory = JSON.parse(localStorage.getItem("searchHistory") || "[]");
-  searchHistory = searchHistory.filter((item) => item !== searchValue);
-  localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
-}
-
 function handleClearAllSearchHistory() {
   localStorage.removeItem("searchHistory");
 }
