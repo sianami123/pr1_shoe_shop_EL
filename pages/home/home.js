@@ -6,11 +6,16 @@ import { BottomNav } from "../../components/bottom_nav/bottom_nav.js";
 import { FilterPills } from "../../components/filter_pills.js";
 import { ProductGrid } from "../../components/product_grid.js";
 import { El } from "../../utils/El.js";
-import { getAllProductsController } from "../../controller/controller.js";
+import {
+  getAllProductsController,
+  getWishlistController,
+} from "../../controller/controller.js";
 import { showLoading, hideLoading } from "../../components/loading.js";
 import { getLocalStorage } from "../../controller/localStorage.js";
 const urlParams = new URLSearchParams(window.location.search);
 const brandsParam = urlParams.get("brands");
+
+const products = document.getElementById("products");
 
 let allProducts;
 let allWishlistIds;
@@ -20,21 +25,16 @@ const user = getLocalStorage("user");
 const loadingElement = showLoading();
 
 try {
-  const { products, wishlistIds } = await getAllProductsController(brandsParam);
-  allProducts = products;
-  allWishlistIds = wishlistIds;
-
-  console.log("wishlistIds:", allWishlistIds);
-  console.log("allProducts:", allProducts);
-
+  allProducts = await getAllProductsController(brandsParam);
+  allWishlistIds = await getWishlistController({});
+  allWishlistIds = allWishlistIds.records.map((item) => item.productId);
+  console.log("allWishlistIds:", allWishlistIds);
+  products.appendChild(ProductsPage());
   hideLoading(loadingElement);
 } catch (error) {
   hideLoading(loadingElement);
   console.error("Error loading products:", error);
 }
-
-const products = document.getElementById("products");
-products.appendChild(ProductsPage());
 
 function ProductsPage() {
   return El({

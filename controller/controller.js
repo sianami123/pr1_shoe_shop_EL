@@ -52,9 +52,9 @@ async function getAllProductsController(brand) {
       window.location.href = "/login.html";
       return null;
     }
-    const wishlist = await getWishlistByBrandApi({});
-    const wishlistIds = wishlist.records.map((item) => item.productId);
-    return { products, wishlistIds };
+    // const wishlist = await getWishlistByBrandApi({});
+    // const wishlistIds = wishlist.records.map((item) => item.productId);
+    return products;
   } catch (error) {
     console.error("Get all products controller failed", error);
     // window.location.href = "/login.html";
