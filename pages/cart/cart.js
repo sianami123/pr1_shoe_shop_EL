@@ -221,7 +221,7 @@ function CartItem({
           }),
           El({
             element: "div",
-            className: "flex justify-center items-center gap-2",
+            className: "flex justify-start items-center gap-2",
             children: [
               El({
                 element: "div",

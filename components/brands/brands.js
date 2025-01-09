@@ -12,11 +12,6 @@ const brandItems = [
     brandParam: "ADIDAS",
   },
   {
-    name: "Reebok",
-    image: "./components/brands/assets/reebok.svg",
-    brandParam: "REEBOK",
-  },
-  {
     name: "Puma",
     image: "./components/brands/assets/Puma.svg",
     brandParam: "PUMA",
@@ -25,6 +20,11 @@ const brandItems = [
     name: "Asics",
     image: "./components/brands/assets/Asics.svg",
     brandParam: "ASICS",
+  },
+  {
+    name: "Reebok",
+    image: "./components/brands/assets/reebok.svg",
+    brandParam: "REEBOK",
   },
   {
     name: "New Balance",

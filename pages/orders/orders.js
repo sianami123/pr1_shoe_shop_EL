@@ -160,8 +160,7 @@ function Header() {
 }
 
 function TabBar() {
-  // Add state management for active tab
-  let activeTab = "active"; // Default tab
+  let activeTab = "active";
 
   const tabContainer = El({
     element: "div",
@@ -196,16 +195,15 @@ function TabBar() {
       // Orders Container
       El({
         element: "div",
-        className: "flex flex-col gap-4 mt-4 pb-20",
+        className: "flex flex-col gap-4 mt-4 mb-6 pb-20",
         id: "orders-container", // Add ID to update content
       }),
     ],
   });
 
-  // Function to update orders based on active tab
   function updateOrders() {
     const container = tabContainer.querySelector("#orders-container");
-    container.innerHTML = ""; // Clear current orders
+    container.innerHTML = "";
     console.log("ordersData:", ordersData);
     const filteredOrders = ordersData.filter(
       (order) => order.status === activeTab
@@ -213,13 +211,11 @@ function TabBar() {
     console.log("ordersData:", ordersData);
     console.log("filteredOrders:", filteredOrders);
 
-    // Add new orders
     filteredOrders.forEach((order) => {
       // container.appendChild(OrderCard(order));
       container.appendChild(OrderItem(order));
     });
 
-    // Update tab styling
     const [activeButton, completedButton] =
       tabContainer.querySelectorAll("button");
     if (activeTab === "active") {
@@ -233,7 +229,6 @@ function TabBar() {
     }
   }
 
-  // Initial render
   setTimeout(updateOrders, 0);
 
   return tabContainer;
@@ -319,7 +314,7 @@ function OrderItem({
       // Products Preview
       El({
         element: "div",
-        className: "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+        className: "flex gap-2 overflow-x-auto scrollbar-hide",
         children: products.map((product) =>
           El({
             element: "div",
