@@ -297,21 +297,7 @@ function OrderItem({
               }),
             ],
           }),
-          El({
-            element: "div",
-            className: "flex items-center gap-1 text-sm text-gray-500",
-            children: [
-              El({
-                element: "img",
-                src: "./pages/orders/assets/truck.svg",
-                className: "w-6 h-6",
-              }),
-              El({
-                element: "span",
-                children: ship_type,
-              }),
-            ],
-          }),
+
           El({
             element: "span",
             className: "font-semibold text-lg",
@@ -347,8 +333,23 @@ function OrderItem({
       El({
         element: "div",
         className:
-          "flex items-center justify-end mt-2 pt-2 border-t border-gray-100",
+          "flex items-center justify-between mt-2 pt-2 border-t border-gray-100",
         children: [
+          El({
+            element: "div",
+            className: "flex items-center gap-1 text-sm text-gray-500",
+            children: [
+              El({
+                element: "img",
+                src: "./pages/orders/assets/truck.svg",
+                className: "w-6 h-6",
+              }),
+              El({
+                element: "span",
+                children: ship_type,
+              }),
+            ],
+          }),
           El({
             element: "button",
             className: "text-sm text-blue-600 font-medium hover:text-blue-700",
