@@ -11,6 +11,24 @@ const WISHLIST_URL = `${BASE_URL}/api/records/wishlist`;
 const ORDER_URL = `${BASE_URL}/api/records/order`;
 
 //! CART API
+async function updateProductQuantityApi({ id, selectedQuantity }) {
+  try {
+    const response = await fetch(`${CART_URL}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ selectedQuantity }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        api_key,
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Update product quantity API failed", error);
+  }
+}
+
 async function addToCartApi({
   selectedQuantity,
   selectedSize,
@@ -340,4 +358,5 @@ export {
   createOrderApi,
   getOrdersApi,
   deleteAllCartItemsApi,
+  updateProductQuantityApi,
 };

@@ -16,6 +16,7 @@ import {
   createOrderApi,
   getOrdersApi,
   deleteAllCartItemsApi,
+  updateProductQuantityApi,
 } from "./api.js";
 
 //! LOGIN CONTROLLER START
@@ -36,6 +37,16 @@ async function loginController({ email, password }) {
 }
 //! LOGIN CONTROLLER END
 //! PRODUCT CONTROLLER START
+async function updateProductQuantityController({ id, selectedQuantity }) {
+  try {
+    const data = await updateProductQuantityApi({ id, selectedQuantity });
+    return data;
+  } catch (error) {
+    console.error("Update product quantity controller failed", error);
+    return error;
+  }
+}
+
 async function getFilteredProductsIdsController(productIds) {
   try {
     const data = await getFilteredProductsIdsApi(productIds);
@@ -246,4 +257,5 @@ export {
   createOrderController,
   getOrdersController,
   deleteAllCartItemsController,
+  updateProductQuantityController,
 };
