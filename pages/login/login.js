@@ -38,6 +38,10 @@ async function handleLogin(e) {
 
   const data = await loginController({ email, password });
   console.log("data in login.js  :", data);
+  if (!data.accessToken) {
+    showToast({ message: "Invalid email or password", type: "error" });
+    return;
+  }
   // if (data) {
   //   window.location.href = "/";
   // }
