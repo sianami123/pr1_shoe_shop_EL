@@ -76,7 +76,7 @@ function CartHeader() {
       }),
       El({
         element: "div",
-        className: "flex items-center",
+        className: "flex items-center cursor-pointer",
         eventListener: [
           {
             event: "click",
@@ -130,7 +130,7 @@ function CartItem({
     color.toLowerCase() === "black"
       ? "bg-black"
       : color.toLowerCase() === "brown"
-      ? "bg-brown-500"
+      ? "bg-amber-900"
       : color.toLowerCase() === "white"
       ? "bg-white"
       : color.toLowerCase() === "gray"
@@ -261,12 +261,12 @@ function CartItem({
                   El({
                     element: "div",
                     className:
-                      "flex bg-[#ececed] justify-between w-[90px] rounded-[30px]",
+                      "flex bg-[#F5F5F5] justify-between items-center w-[100px] h-[36px] rounded-full",
                     children: [
                       El({
                         element: "button",
                         className:
-                          "rounded-[30px] font-medium text-[17px] py-1 pl-4",
+                          "w-9 h-9 flex items-center justify-center text-lg font-medium hover:bg-gray-200 rounded-full transition-colors",
                         id: "quantityNegative",
                         children: "-",
                         eventListener: [
@@ -290,15 +290,14 @@ function CartItem({
                       }),
                       El({
                         element: "p",
-                        className:
-                          "bg-black w-full bg-opacity-0 text-center outline-none text-[17px]",
+                        className: "flex-1 text-center font-medium",
                         id: `quantity-${cartId}`,
                         innerHTML: `${quantity}`,
                       }),
                       El({
                         element: "button",
                         className:
-                          "rounded-[30px] font-medium text-[17px] py-1 pr-4",
+                          "w-9 h-9 flex items-center justify-center text-lg font-medium hover:bg-gray-200 rounded-full transition-colors",
                         id: "quantityPlus",
                         children: "+",
                         eventListener: [
