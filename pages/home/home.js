@@ -28,7 +28,7 @@ try {
   allProducts = await getAllProductsController(brandsParam);
   allWishlistIds = await getWishlistController({});
   allWishlistIds = allWishlistIds.records.map((item) => item.productId);
-  console.log("allWishlistIds:", allWishlistIds);
+  // console.log("allWishlistIds:", allWishlistIds);
   products.appendChild(ProductsPage());
   hideLoading(loadingElement);
 } catch (error) {

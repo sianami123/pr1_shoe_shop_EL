@@ -1220,7 +1220,7 @@ function showSuccessModal() {
 // ! Payment Method Modal /////////////////////////////
 
 async function submitOrder() {
-  console.log("submitOrder");
+  console.log("mergedProducts:", mergedProducts);
   try {
     const orderData = {
       status: "active",
