@@ -1,6 +1,7 @@
 import { BackButton } from "../../components/ui/back_button.js";
 import { loginController } from "../../controller/controller.js";
 import { El } from "../../utils/El.js";
+import { showToast } from "../../components/toast.js";
 
 const login = document.getElementById("login");
 
@@ -21,15 +22,16 @@ async function handleLogin(e) {
   const emailInput = document.getElementById("email-input");
   const passwordInput = document.getElementById("password-input");
 
-  if (!emailInput || !passwordInput) {
-    console.error("Form inputs not found");
-    return;
-  }
+  // if (!emailInput || !passwordInput) {
+  //   console.error("Form inputs not found");
+  //   return;
+  // }
 
   const email = emailInput.value;
   const password = passwordInput.value;
 
   if (!email || !password) {
+    showToast({ message: "Please fill in all fields", type: "error" });
     console.error("Please fill in all fields");
     return;
   }
